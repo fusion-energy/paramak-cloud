@@ -117,8 +117,9 @@ def update_reactor(n_clicks, inboard_tf_leg_radial_thickness, rotation_angle):
 
 
 if __name__ == "__main__":
-    app.run_server(
-        # debug=True,
-        # # https://github.com/plotly/dash/issues/1293
-        # dev_tools_hot_reload=False
-    )
+    app.run_server(host="0.0.0.0", port=8080)
+    # app.run_server(
+    #     # debug=True,
+    #     # # https://github.com/plotly/dash/issues/1293
+    #     # dev_tools_hot_reload=False
+    # )
