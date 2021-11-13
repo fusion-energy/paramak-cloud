@@ -15,7 +15,7 @@ ENV PORT 8080
 
 EXPOSE 8080
 
-COPY assets assets
+RUN mkdir assets
 COPY app.py .
 
 # Run the web service on container startup. Here we use the gunicorn
