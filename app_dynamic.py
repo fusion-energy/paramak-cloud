@@ -17,32 +17,53 @@ app = dash.Dash(__name__)
 
 app.layout = html.Div(
     children=[
-        html.H1(children='Paramak GUI'),
+        html.H1(children="Paramak GUI"),
         dcc.Dropdown(
-            id='reactor-selector',
+            id="reactor-selector",
             options=[
-                {'label': 'EuDemoFrom2015PaperDiagram', 'value': 'EuDemoFrom2015PaperDiagram'},
-                {'label': 'BallReactor', 'value': 'BallReactor'},
-                {'label': 'SubmersionTokamak', 'value': 'SubmersionTokamak'},
-                {'label': 'SingleNullSubmersionTokamak', 'value': 'SingleNullSubmersionTokamak'},
-                {'label': 'SingleNullBallReactor', 'value': 'SingleNullBallReactor'},
-                {'label': 'SegmentedBlanketBallReactor', 'value': 'SegmentedBlanketBallReactor'},
-                {'label': 'CenterColumnStudyReactor', 'value': 'CenterColumnStudyReactor'},
-                {'label': 'SparcFrom2020PaperDiagram', 'value': 'SparcFrom2020PaperDiagram'},
-                {'label': 'IterFrom2020PaperDiagram', 'value': 'IterFrom2020PaperDiagram'},
-                {'label': 'FlfSystemCodeReactor', 'value': 'FlfSystemCodeReactor'},
+                {
+                    "label": "EuDemoFrom2015PaperDiagram",
+                    "value": "EuDemoFrom2015PaperDiagram",
+                },
+                {"label": "BallReactor", "value": "BallReactor"},
+                {"label": "SubmersionTokamak", "value": "SubmersionTokamak"},
+                {
+                    "label": "SingleNullSubmersionTokamak",
+                    "value": "SingleNullSubmersionTokamak",
+                },
+                {"label": "SingleNullBallReactor", "value": "SingleNullBallReactor"},
+                {
+                    "label": "SegmentedBlanketBallReactor",
+                    "value": "SegmentedBlanketBallReactor",
+                },
+                {
+                    "label": "CenterColumnStudyReactor",
+                    "value": "CenterColumnStudyReactor",
+                },
+                {
+                    "label": "SparcFrom2020PaperDiagram",
+                    "value": "SparcFrom2020PaperDiagram",
+                },
+                {
+                    "label": "IterFrom2020PaperDiagram",
+                    "value": "IterFrom2020PaperDiagram",
+                },
+                {"label": "FlfSystemCodeReactor", "value": "FlfSystemCodeReactor"},
             ],
-            value='NYC'
+            value="NYC",
         ),
         html.Div(id="reactor_input_args"),
-        html.Iframe(id='reactor_viewer', height=600, width=1000, src="assets/reactor_3d.html"),
+        html.Iframe(
+            id="reactor_viewer", height=600, width=1000, src="assets/reactor_3d.html"
+        ),
         html.Button(
             "Update reactor",
             title="Click to update the reactor model with the latest parameters",
             id="reactor_update",
-        )
+        ),
     ]
 )
+
 
 @app.callback(
     Output("reactor_viewer", "src"),
@@ -61,17 +82,16 @@ def clicked_update_reactor(n_clicks):
 
 
 @app.callback(
-    Output("reactor_input_args", "children"),
-    Input("reactor-selector", "value")
+    Output("reactor_input_args", "children"), Input("reactor-selector", "value")
 )
 def update_graph_from_mcnp(selected_reactor):
-    if selected_reactor == 'BallReactor':
+    if selected_reactor == "BallReactor":
         my_reactor = paramak.BallReactor()
         input_boxes = []
 
         input_variable_names = [
-            ('inner_bore_radial_thickness', float),
-            ('inboard_tf_leg_radial_thickness', float),
+            ("inner_bore_radial_thickness", float),
+            ("inboard_tf_leg_radial_thickness", float),
             # 'center_column_shield_radial_thickness',
             # 'divertor_radial_thickness',
             # 'inner_plasma_gap_radial_thickness',
@@ -98,16 +118,14 @@ def update_graph_from_mcnp(selected_reactor):
         ]
         for input_arg in input_variable_names:
             input_boxes.append(
-                html.Div(children=[
-                    html.P(input_arg[0]),
-                    daq.NumericInput(id=input_arg[0])
-                ]
+                html.Div(
+                    children=[html.P(input_arg[0]), daq.NumericInput(id=input_arg[0])]
+                )
             )
-        )
         return input_boxes
     else:
         return []
 
 
-if __name__ == '__main__':
-    app.run_server(port=8050, host='0.0.0.0', debug=True)
+if __name__ == "__main__":
+    app.run_server(port=8050, host="0.0.0.0", debug=True)

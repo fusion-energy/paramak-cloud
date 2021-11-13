@@ -106,14 +106,14 @@ def update_reactor(inboard_tf_leg_radial_thickness, rotation_angle):
     # my_reactor.export_html_3d("assets/reactor_3d.html")
     my_reactor.export_stl("assets/reactor_3d.stl")
 
-    # demo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    # head_vti = os.path.join(
-    #     demo_dir, "paramak-cloud", "assets", "reactor_3d.stl"
-    # )
+    demo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    head_vti = os.path.join(
+        demo_dir, "paramak-cloud", "assets", "reactor_3d.stl"
+    )
 
     # Load dataset from dist
     reader = vtk.vtkSTLReader()
-    reader.SetFileName("assets/reactor_3d.stl")
+    reader.SetFileName(head_vti)
     reader.Update()
 
     mesh_state = to_mesh_state(reader.GetOutput())
