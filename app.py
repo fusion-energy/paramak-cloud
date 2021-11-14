@@ -1,5 +1,5 @@
 import os
-
+import io
 import dash
 import dash.dependencies as dd
 import dash_core_components as dcc
@@ -11,7 +11,7 @@ import vtk
 from dash import html
 from dash.dependencies import Input, Output, State
 from dash_vtk.utils import to_mesh_state, to_volume_state
-
+from flask import send_file
 
 app = dash.Dash(
     __name__,
@@ -19,6 +19,8 @@ app = dash.Dash(
 )
 
 server = app.server
+
+
 
 
 app.layout = html.Div(
@@ -34,46 +36,278 @@ app.layout = html.Div(
                 ),
                 html.Tr(
                     [
-                        html.Td('inboard_tf_leg_radial_thickness'),
+                        html.Td('inner_bore_radial_thickness'),
                         html.Td(
                             dcc.Input(
-                                id="inboard_tf_leg_radial_thickness",
+                                id="inner_bore_radial_thickness",
                                 value=10,
-                                style={"display": "inline-block"},
                             )
                         )
                     ]
                 ),
                 html.Tr(
                     [
-                        html.Td('1'),
-                        html.Td('1')
+                        html.Td('inboard_tf_leg_radial_thickness'),
+                        html.Td(
+                            dcc.Input(
+                                id="inboard_tf_leg_radial_thickness",
+                                value=30,
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('center_column_shield_radial_thickness'),
+                        html.Td(
+                            dcc.Input(
+                                id="center_column_shield_radial_thickness",
+                                value=60,
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('divertor_radial_thickness'),
+                        html.Td(
+                            dcc.Input(
+                                id="divertor_radial_thickness",
+                                value=150,
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('inner_plasma_gap_radial_thickness'),
+                        html.Td(
+                            dcc.Input(
+                                id="inner_plasma_gap_radial_thickness",
+                                value=30,
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('plasma_radial_thickness'),
+                        html.Td(
+                            dcc.Input(
+                                id="plasma_radial_thickness",
+                                value=300,
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('outer_plasma_gap_radial_thickness'),
+                        html.Td(
+                            dcc.Input(
+                                id="outer_plasma_gap_radial_thickness",
+                                value=30,
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('plasma_gap_vertical_thickness'),
+                        html.Td(
+                            dcc.Input(
+                                id="plasma_gap_vertical_thickness",
+                                value=50,
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('firstwall_radial_thickness'),
+                        html.Td(
+                            dcc.Input(
+                                id="firstwall_radial_thickness",
+                                value=30,
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('blanket_radial_thickness'),
+                        html.Td(
+                            dcc.Input(
+                                id="blanket_radial_thickness",
+                                value=50,
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('blanket_rear_wall_radial_thickness'),
+                        html.Td(
+                            dcc.Input(
+                                id="blanket_rear_wall_radial_thickness",
+                                value=30,
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('divertor_to_tf_gap_vertical_thickness'),
+                        html.Td(
+                            dcc.Input(
+                                id="divertor_to_tf_gap_vertical_thickness",
+                                value=0,
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('number_of_tf_coils'),
+                        html.Td(
+                            dcc.Input(
+                                id="number_of_tf_coils",
+                                value=12,
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('rear_blanket_to_tf_gap'),
+                        html.Td(
+                            dcc.Input(
+                                id="rear_blanket_to_tf_gap",
+                                value='',
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('pf_coil_radial_thicknesses'),
+                        html.Td(
+                            dcc.Input(
+                                id="pf_coil_radial_thicknesses",
+                                value='',
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('pf_coil_vertical_thicknesses'),
+                        html.Td(
+                            dcc.Input(
+                                id="pf_coil_vertical_thicknesses",
+                                value='',
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('pf_coil_radial_position'),
+                        html.Td(
+                            dcc.Input(
+                                type='text',
+                                id="pf_coil_radial_position",
+                                value='',
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('pf_coil_vertical_position'),
+                        html.Td(
+                            dcc.Input(
+                                type='text',
+                                id="pf_coil_vertical_position",
+                                value='',
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('pf_coil_case_thicknesses'),
+                        html.Td(
+                            dcc.Input(
+                                id="pf_coil_case_thicknesses",
+                                value='',
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('outboard_tf_coil_radial_thickness'),
+                        html.Td(
+                            dcc.Input(
+                                id="outboard_tf_coil_radial_thickness",
+                                value='',
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('outboard_tf_coil_poloidal_thickness'),
+                        html.Td(
+                            dcc.Input(
+                                id="outboard_tf_coil_poloidal_thickness",
+                                value='',
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('divertor_position'),
+                        html.Td(
+                            dcc.Dropdown(
+                                id="divertor_position",
+                                options=[
+                                    {'label': 'lower', 'value': 'lower'},
+                                    {'label': 'upper', 'value': 'upper'},
+                                    {'label': 'both', 'value': 'both'}
+                                ],
+                                value='lower',
+                                clearable=False
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('rotation_angle'),
+                        html.Td(
+                            dcc.Input(
+                                id="rotation_angle",
+                                value=180,
+                            )
+                        )
                     ]
                 ),
             ],
         ),
-        html.Div(
-            [
-                html.H4(
-                    "inboard_tf_leg_radial_thickness", style={"display": "inline-block"}
-                ),
-                # dcc.Input(
-                #     id="inboard_tf_leg_radial_thickness",
-                #     value=10,
-                #     style={"display": "inline-block"},
-                # ),
-                html.Br(),
-                html.H4("rotation_angle", style={"display": "inline-block"}),
-                dcc.Input(
-                    id="rotation_angle", value=180, style={"display": "inline-block"}
-                ),
-            ]
-        ),
-        html.Button(
-            "Simulate reactor",
-            title="Click to perform an OpenMC simulation of the reactor",
-            id="reactor_update",
-        ),
+        # html.Button(
+        #     "Download reactor CAD files",
+        #     title="Click to dowload STL and STP files of the reactor",
+        #     id="download_button",
+        # ),
+        # dcc.Download(id="download_files"),
+        # html.Button(
+        #     "Simulate reactor",
+        #     title="Click to perform an OpenMC simulation of the reactor",
+        #     id="reactor_update",
+        # ),
         dcc.Loading(
             id="reactor_viewer",
             type="default",
@@ -82,26 +316,120 @@ app.layout = html.Div(
 )
 
 
+# @app.callback(
+#     Output("download_files", "data"),
+#     Input("download_button", "n_clicks"),
+#     prevent_initial_call=True,
+# )
+# def clicked_download(n_clicks):
+#     def write_archive(bytes_io):
+#         with open("assets/reactor_3d.stl", 'rb') as fh:
+#             buf = io.BytesIO(fh.read())
+#     return dcc.send_bytes(write_archive, "some_name.zip")
+#    return send_file("assets/reactor_3d.stl", as_attachment=True)
+
+
 @app.callback(
     Output("reactor_viewer", "children"),
-    # Output("reactor_viewer", "children"),
+    Input("inner_bore_radial_thickness", "value"),
     Input("inboard_tf_leg_radial_thickness", "value"),
-    Input("rotation_angle", "value"),
-    # Input("reactor_update", "n_clicks"),
-    # State("inboard_tf_leg_radial_thickness", "value"),
-    # State("rotation_angle", "value"),
+    Input("center_column_shield_radial_thickness", "value"),
+    Input('blanket_radial_thickness', "value"),
+    Input('blanket_rear_wall_radial_thickness', "value"),
+    Input('plasma_gap_vertical_thickness', "value"),
+    Input('divertor_to_tf_gap_vertical_thickness', "value"),
+    Input('number_of_tf_coils', "value"),
+    Input('rear_blanket_to_tf_gap', "value"),
+    Input('pf_coil_radial_thicknesses', "value"),
+    Input('pf_coil_vertical_thicknesses', "value"),
+    Input('pf_coil_radial_position', "value"),
+    Input('pf_coil_vertical_position', "value"),
+    Input('pf_coil_case_thicknesses', "value"),
+    Input('outboard_tf_coil_radial_thickness', "value"),
+    Input('outboard_tf_coil_poloidal_thickness', "value"),
+    Input('divertor_position', "value"),
+    Input('rotation_angle', "value")
 )
 
 # def update_reactor(n_clicks, inboard_tf_leg_radial_thickness, rotation_angle):
-def update_reactor(inboard_tf_leg_radial_thickness, rotation_angle):
+def update_reactor(
+    inner_bore_radial_thickness,
+    inboard_tf_leg_radial_thickness,
+    center_column_shield_radial_thickness,
+    blanket_radial_thickness,
+    blanket_rear_wall_radial_thickness,
+    plasma_gap_vertical_thickness,
+    divertor_to_tf_gap_vertical_thickness,
+    number_of_tf_coils,
+    rear_blanket_to_tf_gap,
+    pf_coil_radial_thicknesses,
+    pf_coil_vertical_thicknesses,
+    pf_coil_radial_position,
+    pf_coil_vertical_position,
+    pf_coil_case_thicknesses,
+    outboard_tf_coil_radial_thickness,
+    outboard_tf_coil_poloidal_thickness,
+    divertor_position,
+    rotation_angle,
+):
     # trigger_id = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
     # if trigger_id == "reactor_update":
     #     if n_clicks is None or n_clicks == 0:
     #         raise dash.exceptions.PreventUpdate
         # else:
+    if pf_coil_radial_thicknesses == '':
+        pf_coil_radial_thicknesses=None
+    else:
+        pf_coil_radial_thicknesses = [float(val) for val in str(pf_coil_radial_thicknesses).split(',')]
+        
+    if pf_coil_vertical_thicknesses == '':
+        pf_coil_vertical_thicknesses=None
+    else:
+        pf_coil_vertical_thicknesses = [float(val) for val in str(pf_coil_vertical_thicknesses).split(',')]
+    
+    if pf_coil_radial_position == '':
+        pf_coil_radial_position=None
+    else:
+        pf_coil_radial_position = [float(val) for val in str(pf_coil_radial_position).split(',')]
+    
+    if pf_coil_vertical_position == '':
+        pf_coil_vertical_position=None
+    else:
+        pf_coil_vertical_position = [float(val) for val in str(pf_coil_vertical_position).split(',')]
+    
+    if pf_coil_case_thicknesses == '':
+        pf_coil_case_thicknesses=None
+    else:
+        pf_coil_case_thicknesses = [float(val) for val in str(pf_coil_case_thicknesses).split(',')]
+
+    if rear_blanket_to_tf_gap == '':
+        rear_blanket_to_tf_gap = None
+
+    if outboard_tf_coil_radial_thickness == '':
+        outboard_tf_coil_radial_thickness = None
+
+    if outboard_tf_coil_poloidal_thickness == '':
+        outboard_tf_coil_poloidal_thickness = None
+
     my_reactor = paramak.BallReactor(
+        inner_bore_radial_thickness=float(inner_bore_radial_thickness),
         inboard_tf_leg_radial_thickness=float(inboard_tf_leg_radial_thickness),
+        center_column_shield_radial_thickness=float(center_column_shield_radial_thickness),
+        blanket_radial_thickness=float(blanket_radial_thickness),
+        blanket_rear_wall_radial_thickness=float(blanket_rear_wall_radial_thickness),
+        plasma_gap_vertical_thickness=float(plasma_gap_vertical_thickness),
+        divertor_to_tf_gap_vertical_thickness=float(divertor_to_tf_gap_vertical_thickness),
+        number_of_tf_coils=float(number_of_tf_coils),
+        rear_blanket_to_tf_gap=rear_blanket_to_tf_gap,
+        outboard_tf_coil_radial_thickness=outboard_tf_coil_radial_thickness,
+        outboard_tf_coil_poloidal_thickness=outboard_tf_coil_poloidal_thickness,
         rotation_angle=float(rotation_angle),
+        divertor_position=divertor_position,
+        pf_coil_radial_thicknesses=pf_coil_radial_thicknesses,
+        pf_coil_vertical_thicknesses=pf_coil_vertical_thicknesses,
+        pf_coil_radial_position=pf_coil_radial_position,
+        pf_coil_vertical_position=pf_coil_vertical_position,
+        pf_coil_case_thicknesses=pf_coil_case_thicknesses,
     )
     # my_reactor.export_html_3d("assets/reactor_3d.html")
     my_reactor.export_stl("assets/reactor_3d.stl")
@@ -136,7 +464,7 @@ def update_reactor(inboard_tf_leg_radial_thickness, rotation_angle):
 
 if __name__ == "__main__":
     app.run_server(
-        # debug=True,
+        debug=True,
         # # https://github.com/plotly/dash/issues/1293
-        # dev_tools_hot_reload=False
+        dev_tools_hot_reload=False
     )
