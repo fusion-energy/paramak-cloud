@@ -3,7 +3,7 @@ import io
 import dash
 import dash.dependencies as dd
 import dash_core_components as dcc
-import dash_daq as daq
+# import dash_daq as daq
 import dash_html_components as html
 import dash_vtk
 import paramak
@@ -297,6 +297,9 @@ app.layout = html.Div(
                 ),
             ],
         ),
+        # https://dash.plotly.com/dash-core-components/dropdown
+        # https://community.plotly.com/t/create-and-download-zip-file/53704
+        # https://stackoverflow.com/questions/67917360/plotly-dash-download-bytes-stream/67918580#67918580
         # html.Button(
         #     "Download reactor CAD files",
         #     title="Click to dowload STL and STP files of the reactor",
