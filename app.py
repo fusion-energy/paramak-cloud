@@ -2,9 +2,13 @@ import os
 import io
 import dash
 import dash.dependencies as dd
-import dash_core_components as dcc
+# import dash_core_components as dcc
 # import dash_daq as daq
-import dash_html_components as html
+# import dash_html_components as html
+
+from dash import dcc
+# import dash_daq as daq
+
 import dash_vtk
 import paramak
 import vtk
@@ -447,12 +451,29 @@ def update_reactor(
     reader.SetFileName("assets/reactor_3d.stl")
     reader.Update()
 
+    # sets colors
+    # colors = vtk.vtkNamedColors()
+    mapper = vtk.vtkPolyDataMapper()
+    mapper.SetInputConnection(reader.GetOutputPort())
+    actor = vtk.vtkActor()
+    actor.SetMapper(mapper)
+    actor.GetProperty().SetColor((1,0,0))
+    # actor.GetProperty().SetDiffuse(0.8)
+    # actor.GetProperty().SetDiffuseColor(colors.GetColor3d('LightSteelBlue'))
+    # actor.GetProperty().SetSpecular(0.3)
+    # actor.GetProperty().SetSpecularPower(60.0)
+
+    background = [1,1,1]
+
     mesh_state = to_mesh_state(reader.GetOutput())
 
     vtk_view = dash_vtk.View(
         dash_vtk.GeometryRepresentation(
             dash_vtk.Mesh(state=mesh_state),
-        )
+        ),
+        # cameraViewUp=[0,0,0],
+        # cameraPosition=[1000,-1000,-1000],
+        background=background
     )
 
     return html.Div(
