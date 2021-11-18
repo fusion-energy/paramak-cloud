@@ -2,14 +2,13 @@
 # docker build -t paramak-cloud .
 # docker run -p 8080:8080 paramak-cloud
 
-FROM ghcr.io/fusion-energy/paramak:latest
+FROM ghcr.io/fusion-energy/paramak:dependencies
 
 #this sets the port, gcr looks for this varible
 
 RUN pip install gunicorn==20.0.4
-RUN pip install dash
-RUN pip install dash_vtk
-RUN pip install dash_daq
+RUN pip install dash dash_vtk dash_daq
+RUN pip install paramak
 
 ENV PORT 8080
 

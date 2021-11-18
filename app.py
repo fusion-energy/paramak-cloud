@@ -25,19 +25,14 @@ app = dash.Dash(
 server = app.server
 
 
-
-
-app.layout = html.Div(
-    children=[
-        html.H1(children="Paramak GUI"),
-        html.Table(
+input_args_table = html.Table(
             #Header
             [
-                html.Tr(
-                    [
-                        html.Th('Geometric parameters')
-                    ]
-                ),
+                # html.Tr(
+                #     [
+                #         html.Th('\U0001f449 Input geometric parameters')
+                #     ]
+                # ),
                 html.Tr(
                     [
                         html.Td('inner_bore_radial_thickness'),
@@ -300,6 +295,135 @@ app.layout = html.Div(
                     ]
                 ),
             ],
+        )
+
+material_parameters = html.Table(
+            #Header
+            [
+                html.Tr(
+                    [
+                        html.Td('first wall armour material'),
+                        html.Td(
+                            dcc.Input(
+                                id="mat_first_wall_armour",
+                                value='tungsten',
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('first wall material'),
+                        html.Td(
+                            dcc.Input(
+                                id="mat_first_wall",
+                                value='eurofer',
+                            )
+                        )
+                    ]
+                ),
+            ]
+)
+
+neutronics_parameters = html.Table(
+            #Header
+            [
+                html.Tr(
+                    [
+                        html.Td('batches'),
+                        html.Td(
+                            dcc.Input(
+                                id="neutronics_batches",
+                                value=10,
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('particles per batch'),
+                        html.Td(
+                            dcc.Input(
+                                id="neutronics_particles_per_batch",
+                                value=1000,
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('tallies required'),
+                        html.Td(
+                            dcc.Dropdown(
+                                options=[
+                                    {'label': 'TBR', 'value': 'tbr'},
+                                    {'label': 'blanket heating', 'value': 'blanket_heating'},
+                                    {'label': 'dose maps', 'value': 'dose_maps'},
+                                    {'label': 'dose vtk', 'value': 'dose_vtk'}
+                                ],
+                                value=[],
+                                multi=True
+                            )
+                        )
+                    ]
+                ),
+            ]
+)
+
+app.layout = html.Div(
+    children=[
+        html.Iframe(
+            src="https://ghbtns.com/github-btn.html?user=fusion-energy&repo=paramak&type=star&count=true&size=large",
+            width="170",
+            height="30",
+            title="GitHub",
+            style={"border": 0, "scrolling": "0"},
+        ),
+        html.H1("Paramak GUI", style={"text-align":"center"}),
+        html.H2("Create 3D fusion reactor models and perform neutronics simulations on demand.", style={"text-align":"center"}),
+        html.H2("This webpage is under development and not fully functional yet.", style={"color":"red", "text-align":"center"}),
+        html.H2("\U0001f449 Select a reactor"),
+        # html.H2("Select a reactor \U0001f449"),
+        dcc.Dropdown(
+            id="reactor_seclector",
+            options=[
+                {'label': 'BallReactor', 'value': 'BallReactor'},
+                {'label': 'Work in progress', 'value': 'upper'},
+                {'label': 'Work in progress', 'value': 'both'}
+            ],
+            value='BallReactor',
+            clearable=False,
+            style={'width': '50%'}
+        ),
+        html.H2('\U0001f449 Input geometric parameters'),
+        html.Div(
+            input_args_table,
+            style={'width': '25%', 'display': 'inline-block'}
+        ),
+        html.Div(
+            dcc.Loading(
+                id="reactor_viewer",
+                type="default",
+            ),
+            style={'width': '75%', 'display': 'inline-block'}
+        ),
+        html.Button(
+            "Download reactor CAD files",
+            title="Click to dowload STL and STP files of the reactor",
+            id="download_button",
+        ),
+        html.Br(),
+        html.Br(),
+        html.H2('\U0001f449 Select materials'),
+        material_parameters,
+        html.Br(),
+        html.Br(),
+        html.H2('\U0001f449 Specify neutronics settings'),
+        neutronics_parameters,
+        html.Button(
+            "Simulate reactor",
+            title="Click to start a neutronics simulation",
+            id="simulate_button",
         ),
         # https://dash.plotly.com/dash-core-components/dropdown
         # https://community.plotly.com/t/create-and-download-zip-file/53704
@@ -315,10 +439,7 @@ app.layout = html.Div(
         #     title="Click to perform an OpenMC simulation of the reactor",
         #     id="reactor_update",
         # ),
-        dcc.Loading(
-            id="reactor_viewer",
-            type="default",
-        ),
+
     ]
 )
 
@@ -479,7 +600,8 @@ def update_reactor(
     return html.Div(
         id="reactor_viewer",
         # children=[html.Div(vtk_view)]
-        style={"height": "calc(80vh - 16px)", "width": "100%"},
+        # style={"height": "calc(80vh - 16px)", "width": "75%"},
+        style={"height": "calc(65vh - 16px)", "width": "75%"},
         children=html.Div(
             vtk_view, style={"height": "100%", "width": "100%"}
         )
