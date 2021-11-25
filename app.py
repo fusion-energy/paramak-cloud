@@ -156,6 +156,28 @@ input_args_table = html.Table(
                 ),
                 html.Tr(
                     [
+                        html.Td('elongation'),
+                        html.Td(
+                            dcc.Input(
+                                id="elongation",
+                                value=2.,
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td('triangularity'),
+                        html.Td(
+                            dcc.Input(
+                                id="triangularity",
+                                value=0.55,
+                            )
+                        )
+                    ]
+                ),
+                html.Tr(
+                    [
                         html.Td('divertor_to_tf_gap_vertical_thickness'),
                         html.Td(
                             dcc.Input(
@@ -370,61 +392,110 @@ neutronics_parameters = html.Table(
             ]
 )
 
-app.layout = html.Div(
-    children=[
-        html.Iframe(
-            src="https://ghbtns.com/github-btn.html?user=fusion-energy&repo=paramak&type=star&count=true&size=large",
-            width="170",
-            height="30",
-            title="GitHub",
-            style={"border": 0, "scrolling": "0"},
-        ),
-        html.H1("Paramak GUI", style={"text-align":"center"}),
-        html.H2("Create 3D fusion reactor models and perform neutronics simulations on demand.", style={"text-align":"center"}),
-        html.H2("This webpage is under development and not fully functional yet.", style={"color":"red", "text-align":"center"}),
-        html.H2("\U0001f449 Select a reactor"),
-        # html.H2("Select a reactor \U0001f449"),
-        dcc.Dropdown(
-            id="reactor_seclector",
-            options=[
-                {'label': 'BallReactor', 'value': 'BallReactor'},
-                {'label': 'Work in progress', 'value': 'upper'},
-                {'label': 'Work in progress', 'value': 'both'}
-            ],
-            value='BallReactor',
-            clearable=False,
-            style={'width': '50%'}
-        ),
-        html.H2('\U0001f449 Input geometric parameters'),
+
+app.layout = html.Div([
+    html.Iframe(
+        src="https://ghbtns.com/github-btn.html?user=fusion-energy&repo=paramak-cloud&type=star&count=true&size=large",
+        width="170",
+        height="30",
+        title="GitHub",
+        style={"border": 0, "scrolling": "0"},
+    ),
+    html.H1("Paramak GUI", style={"text-align":"center"}),
+    html.H2("Create 3D fusion reactor models and perform neutronics simulations on demand.", style={"text-align":"center"}),
+    html.H2("This webpage is under development and not fully functional yet.", style={"color":"red", "text-align":"center"}),
+    dcc.Tabs(id="tabs", value = "geometry", children=[
+        # dcc.Tab(label='Geometry', value='geometry-tab'),
+        # dcc.Tab(label='Materials', value='materials-tab'),
+        # dcc.Tab(label='Simulate', value='simulate-tab'),
+        dcc.Tab(label = "Geometry", value = "geometry"),
+        dcc.Tab(label = "Materials", value = "materials"),
+        dcc.Tab(label = "Settings", value = "settings"),
+    ]),
+    # html.Div(id='tabs-content-example-graph'),
         html.Div(
-            input_args_table,
-            style={'width': '25%', 'display': 'inline-block'}
-        ),
-        html.Div(
-            dcc.Loading(
-                id="reactor_viewer",
-                type="default",
+            id = "geometry-tab",
+            style = {'display': 'none'},
+            children=[html.H2("\U0001f449 Select a reactor"),
+            dcc.Dropdown(
+                id="reactor_seclector",
+                options=[
+                    {'label': 'BallReactor', 'value': 'BallReactor'},
+                    {'label': 'Work in progress', 'value': 'another reactor'},
+                    {'label': 'Work in progress', 'value': 'another reactor'}
+                ],
+                value='BallReactor',
+                clearable=False,
+                style={'width': '50%'}
             ),
-            style={'width': '75%', 'display': 'inline-block'}
+            html.H2('\U0001f449 Input geometric parameters'),
+            html.Div(
+                input_args_table,
+                style={'width': '25%', 'display': 'inline-block'}
+            ),
+            html.Div(
+                dcc.Loading(
+                    id="reactor_viewer",
+                    type="default",
+                ),
+                style={'width': '75%', 'display': 'inline-block'}
+            ),
+            html.Button(
+                "Download reactor CAD files",
+                title="Click to dowload STL and STP files of the reactor",
+                id="download_button",
+            )],
         ),
-        html.Button(
-            "Download reactor CAD files",
-            title="Click to dowload STL and STP files of the reactor",
-            id="download_button",
+    html.Div(
+            id = "materials-div",
+            style = {'display': 'none'},
+            children=[
+                html.H2('\U0001f449 Select materials'),
+                material_parameters,
+            ]
         ),
-        html.Br(),
-        html.Br(),
-        html.H2('\U0001f449 Select materials'),
-        material_parameters,
-        html.Br(),
-        html.Br(),
-        html.H2('\U0001f449 Specify neutronics settings'),
-        neutronics_parameters,
-        html.Button(
-            "Simulate reactor",
-            title="Click to start a neutronics simulation",
-            id="simulate_button",
-        ),
+    html.Div(
+            id = "settings-div",
+            style = {'display': 'none'},
+            children=[
+                html.H2('\U0001f449 Specify neutronics settings'),
+                neutronics_parameters,
+                html.Button(
+                    "Simulate reactor",
+                    title="Click to start a neutronics simulation",
+                    id="simulate_button",
+                ),
+            ]
+        )
+])
+
+@app.callback(
+    [
+        Output("geometry-tab", "style"),
+        Output("materials-div", "style"),
+        Output("settings-div", "style")
+    ],
+    [Input("tabs", "value")],
+)
+def render_tab_content(active_tab):
+    """
+    This callback takes the 'active_tab' property as input, as well as the
+    stored graphs, and renders the tab content depending on what the value of
+    'active_tab' is.
+    """
+    on = {'display': 'block'}
+    off = {'display': 'none'}
+    if active_tab is not None:
+        if active_tab == "geometry":
+            return on, off, off
+        elif active_tab == "materials":
+            return off, on, off
+        elif active_tab == "settings":
+            return off, off, on
+    return f"No tab selected {active_tab}"
+
+
+
         # https://dash.plotly.com/dash-core-components/dropdown
         # https://community.plotly.com/t/create-and-download-zip-file/53704
         # https://stackoverflow.com/questions/67917360/plotly-dash-download-bytes-stream/67918580#67918580
@@ -440,8 +511,6 @@ app.layout = html.Div(
         #     id="reactor_update",
         # ),
 
-    ]
-)
 
 
 # @app.callback(
@@ -462,9 +531,16 @@ app.layout = html.Div(
     Input("inner_bore_radial_thickness", "value"),
     Input("inboard_tf_leg_radial_thickness", "value"),
     Input("center_column_shield_radial_thickness", "value"),
+    Input('divertor_radial_thickness', "value"),
+    Input('inner_plasma_gap_radial_thickness', "value"),
+    Input('plasma_radial_thickness', "value"),
+    Input('outer_plasma_gap_radial_thickness', "value"),
+    Input('firstwall_radial_thickness', "value"),
     Input('blanket_radial_thickness', "value"),
     Input('blanket_rear_wall_radial_thickness', "value"),
     Input('plasma_gap_vertical_thickness', "value"),
+    Input('elongation', "value"),
+    Input('triangularity', "value"),
     Input('divertor_to_tf_gap_vertical_thickness', "value"),
     Input('number_of_tf_coils', "value"),
     Input('rear_blanket_to_tf_gap', "value"),
@@ -476,7 +552,8 @@ app.layout = html.Div(
     Input('outboard_tf_coil_radial_thickness', "value"),
     Input('outboard_tf_coil_poloidal_thickness', "value"),
     Input('divertor_position', "value"),
-    Input('rotation_angle', "value")
+    Input('rotation_angle', "value"),
+    # prevent_initial_call=True
 )
 
 # def update_reactor(n_clicks, inboard_tf_leg_radial_thickness, rotation_angle):
@@ -484,9 +561,16 @@ def update_reactor(
     inner_bore_radial_thickness,
     inboard_tf_leg_radial_thickness,
     center_column_shield_radial_thickness,
+    divertor_radial_thickness,
+    inner_plasma_gap_radial_thickness,
+    plasma_radial_thickness,
+    outer_plasma_gap_radial_thickness,
+    firstwall_radial_thickness,
     blanket_radial_thickness,
     blanket_rear_wall_radial_thickness,
     plasma_gap_vertical_thickness,
+    elongation,
+    triangularity,
     divertor_to_tf_gap_vertical_thickness,
     number_of_tf_coils,
     rear_blanket_to_tf_gap,
@@ -543,9 +627,16 @@ def update_reactor(
         inner_bore_radial_thickness=float(inner_bore_radial_thickness),
         inboard_tf_leg_radial_thickness=float(inboard_tf_leg_radial_thickness),
         center_column_shield_radial_thickness=float(center_column_shield_radial_thickness),
+        divertor_radial_thickness=float(divertor_radial_thickness),
+        inner_plasma_gap_radial_thickness=float(inner_plasma_gap_radial_thickness),
+        plasma_radial_thickness=float(plasma_radial_thickness),
+        outer_plasma_gap_radial_thickness=float(outer_plasma_gap_radial_thickness),
         blanket_radial_thickness=float(blanket_radial_thickness),
         blanket_rear_wall_radial_thickness=float(blanket_rear_wall_radial_thickness),
         plasma_gap_vertical_thickness=float(plasma_gap_vertical_thickness),
+        elongation=float(elongation),
+        triangularity=float(triangularity),
+        firstwall_radial_thickness=float(firstwall_radial_thickness),
         divertor_to_tf_gap_vertical_thickness=float(divertor_to_tf_gap_vertical_thickness),
         number_of_tf_coils=float(number_of_tf_coils),
         rear_blanket_to_tf_gap=rear_blanket_to_tf_gap,
@@ -610,7 +701,8 @@ def update_reactor(
 
 if __name__ == "__main__":
     app.run_server(
-        debug=True,
-        # # https://github.com/plotly/dash/issues/1293
-        dev_tools_hot_reload=False
+        # debug=True,
+        # when setting debug to True then also set dev_tools_hot_reload to
+        # false to avoid bug https://github.com/plotly/dash/issues/1293
+        # dev_tools_hot_reload=False
     )

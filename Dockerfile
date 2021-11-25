@@ -8,6 +8,7 @@ FROM ghcr.io/fusion-energy/paramak:dependencies
 
 RUN pip install gunicorn==20.0.4
 RUN pip install dash dash_vtk dash_daq
+# RUN pip install dash=2.0.0 dash_vtk=0.0.9 dash_daq=0.5.0
 RUN pip install paramak
 
 ENV PORT 8080
