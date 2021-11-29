@@ -679,7 +679,10 @@ app.layout = html.Div(
                             title="Click to start a neutronics simulation",
                             id="simulate_button",
                         ),
-                        html.Div(id='simulate_results')
+                        dcc.Loading(
+                            id="simulate_results",
+                            type="default",
+                        ),
                     ],
                 ),
             ],
@@ -834,7 +837,10 @@ def clicked_simulate(
     # converts the response to json and prints to terminal
     print(json.dumps(response, indent=4, sort_keys=True))
 
-    return html.H1(f'tbr ={response["TBR"]["result"]}')
+    return html.H1(f'tbr ={response["TBR"]["result"]}'), \
+        html.A('Link to external site',
+            href='https://plotly.com',
+            target='_blank')
 
 
 @app.callback(
