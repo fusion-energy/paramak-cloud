@@ -561,8 +561,10 @@ app.layout = html.Div(
             "This webpage is under development and not fully functional yet.",
             style={"color": "red", "text-align": "center"},
         ),
-
-        html.H2("\U0001f449 Select a reactor",style={"width":"300px","display":"inline-block"},),
+        html.H2(
+            "\U0001f449 Select a reactor",
+            style={"width": "300px", "display": "inline-block"},
+        ),
         dcc.Dropdown(
             id="reactor_selector",
             options=[
@@ -575,7 +577,7 @@ app.layout = html.Div(
             ],
             value="BallReactor",
             clearable=False,
-            style={"width": "300px", "display":"inline-block"},
+            style={"width": "300px", "display": "inline-block"},
         ),
         dcc.Tabs(
             id="tabs",
@@ -589,11 +591,24 @@ app.layout = html.Div(
         # html.Div(id='tabs-content-example-graph'),
         html.Div(
             id="geometry-tab",
-            style={"display": "none"},
+            # style={"display": "none"},
             children=[
-                html.H2("\U0001f449 Input geometric parameters"),
-                html.Div(id="ballreactor_geometry_inputs", style={"width": "25%", "display": "none"}, children=ball_reactor_geometry_input_args_table),
-                html.Div(id="flfsystemcodereactorreactor_geometry_inputs", style={"width": "25%", "display": "none"}, children=flf_system_code_reactor_geometry_input_args_table),
+                html.Div(
+                    id="ballreactor_geometry_inputs",
+                    style={"width": "25%", "display": "none"},
+                    children=[
+                        html.H2("\U0001f449 Input geometric parameters"),
+                        ball_reactor_geometry_input_args_table,
+                    ]
+                ),
+                html.Div(
+                    id="flfsystemcodereactorreactor_geometry_inputs",
+                    style={"width": "25%", "display": "none"},
+                    children=[
+                        html.H2("\U0001f449 Input geometric parameters"),
+                        flf_system_code_reactor_geometry_input_args_table,
+                    ]
+                ),
                 html.Div(
                     dcc.Loading(
                         id="ballreactor_viewer",
@@ -610,49 +625,71 @@ app.layout = html.Div(
                     id="flfreactor_viewer_div",
                     style={"width": "75%", "display": "none"},
                 ),
-                html.Button(
-                    "Download reactor CAD files",
-                    title="Click to dowload STL and STP files of the reactor",
-                    id="download_button",
-                ),
+                # html.Button(
+                #     "Download reactor CAD files",
+                #     title="Click to dowload STL and STP files of the reactor",
+                #     id="download_button",
+                # ),
             ],
         ),
         html.Div(
             id="materials-div",
-            style={"display": "none"},
+            # style={"display": "none"},
             children=[
-                html.H2("\U0001f449 Select materials"),
-                # material_parameters,
-                html.Div(id="ballreactor_material_inputs", style={"width": "25%", "display": "none"}, children=ball_reactor_material_input_args_table),
-                html.Div(id="flfsystemcodereactorreactor_material_inputs", style={"width": "25%", "display": "none"}, children=flf_system_code_reactor_material_input_args_table),
+                html.Div(
+                    id="ballreactor_material_inputs",
+                    style={"width": "25%", "display": "none"},
+                    children=[
+                        html.H2("\U0001f449 Select materials"),
+                        ball_reactor_material_input_args_table,
+                    ],
+                ),
+                html.Div(
+                    id="flfsystemcodereactorreactor_material_inputs",
+                    style={"width": "25%", "display": "none"},
+                    children=[
+                        html.H2("\U0001f449 Select materials"),
+                        flf_system_code_reactor_material_input_args_table,
+                    ],
+                ),
             ],
         ),
         html.Div(
             id="settings-div",
-            style={"display": "none"},
+            # style={"display": "none"},
             children=[
-                html.H2("\U0001f449 Specify neutronics settings"),
-                neutronics_parameters,
-                html.Button(
-                    "Simulate reactor",
-                    title="Click to start a neutronics simulation",
-                    id="simulate_button",
+                html.Div(
+                    id="settings_inputs",
+                    style={"width": "25%", "display": "none"},
+                    children=[
+                        html.H2("\U0001f449 Specify neutronics settings"),
+                        neutronics_parameters,
+                        html.Button(
+                            "Simulate reactor",
+                            title="Click to start a neutronics simulation",
+                            id="simulate_button",
+                        ),
+                    ],
                 ),
             ],
         ),
     ]
 )
 
+
 @app.callback(
     [
         Output("ballreactor_geometry_inputs", "style"),
         Output("flfsystemcodereactorreactor_geometry_inputs", "style"),
-        Output("flfreactor_viewer_div", "style"),
         Output("ballreactor_viewer_div", "style"),
+        Output("flfreactor_viewer_div", "style"),
+        Output("ballreactor_material_inputs", "style"),
+        Output("flfsystemcodereactorreactor_material_inputs", "style"),
+        Output("settings_inputs", "style"),
     ],
-    [Input("reactor_selector", "value")],
+    [Input("reactor_selector", "value"), Input("tabs", "value")],
 )
-def render_tab_content(active_tab):
+def render_tab_content(active_reactor, active_tab):
     """
     This callback takes the 'active_tab' property as input, as well as the
     stored graphs, and renders the tab content depending on what the value of
@@ -660,56 +697,65 @@ def render_tab_content(active_tab):
     """
     on = {"display": "inline-block"}
     off = {"display": "none"}
-    input_column_on =  {"width": "70%", "display": "inline-block"}
-    input_column_off =  {"width": "70%", "display": "none"}
+    input_column_on = {"width": "70%", "display": "inline-block"}
+    input_column_off = {"width": "70%", "display": "none"}
+    print(active_reactor, active_tab)
     if active_tab is not None:
-        if active_tab == "BallReactor":
-            return on, off, input_column_off, input_column_on
-        elif active_tab == "FlfSystemCodeReactor":
-            return off, on, input_column_on, input_column_off
+        if active_reactor == "BallReactor" and active_tab == "geometry":
+            return on, off, on, off, off, off, off
+        if active_reactor == "BallReactor" and active_tab == "materials":
+            print('active_reactor == "BallReactor" and active_tab=="materials"')
+            return off, off, off, off, input_column_on, off, off
+        if active_reactor == "BallReactor" and active_tab == "settings":
+            return off, off, off, off, off, off, on
+        if active_reactor == "FlfSystemCodeReactor" and active_tab == "geometry":
+            return off, on, off, on, off, off, off
+        if active_reactor == "FlfSystemCodeReactor" and active_tab == "materials":
+            return off, off, off, off, off, on, off
+        if active_reactor == "FlfSystemCodeReactor" and active_tab == "settings":
+            return off, off, off, off, off, off, on
     return f"No tab selected {active_tab}"
 
 
+# @app.callback(
+#     [
+#         Output("geometry-tab", "style"),
+#         Output("materials-div", "style"),
+#         Output("settings-div", "style"),
+#     ],
+#     [Input("tabs", "value")],
+# )
+# def render_tab_content(active_tab):
+#     """
+#     This callback takes the 'active_tab' property as input, as well as the
+#     stored graphs, and renders the tab content depending on what the value of
+#     'active_tab' is.
+#     """
+#     on = {"display": "block"}
+#     off = {"display": "none"}
+#     if active_tab is not None:
+#         if active_tab == "geometry":
+#             return on, off, off
+#         elif active_tab == "materials":
+#             return off, on, off
+#         elif active_tab == "settings":
+#             return off, off, on
+#     return f"No tab selected {active_tab}"
 
-@app.callback(
-    [
-        Output("geometry-tab", "style"),
-        Output("materials-div", "style"),
-        Output("settings-div", "style"),
-    ],
-    [Input("tabs", "value")],
-)
-def render_tab_content(active_tab):
-    """
-    This callback takes the 'active_tab' property as input, as well as the
-    stored graphs, and renders the tab content depending on what the value of
-    'active_tab' is.
-    """
-    on = {"display": "block"}
-    off = {"display": "none"}
-    if active_tab is not None:
-        if active_tab == "geometry":
-            return on, off, off
-        elif active_tab == "materials":
-            return off, on, off
-        elif active_tab == "settings":
-            return off, off, on
-    return f"No tab selected {active_tab}"
-
-    # https://dash.plotly.com/dash-core-components/dropdown
-    # https://community.plotly.com/t/create-and-download-zip-file/53704
-    # https://stackoverflow.com/questions/67917360/plotly-dash-download-bytes-stream/67918580#67918580
-    # html.Button(
-    #     "Download reactor CAD files",
-    #     title="Click to dowload STL and STP files of the reactor",
-    #     id="download_button",
-    # ),
-    # dcc.Download(id="download_files"),
-    # html.Button(
-    #     "Simulate reactor",
-    #     title="Click to perform an OpenMC simulation of the reactor",
-    #     id="reactor_update",
-    # ),
+# https://dash.plotly.com/dash-core-components/dropdown
+# https://community.plotly.com/t/create-and-download-zip-file/53704
+# https://stackoverflow.com/questions/67917360/plotly-dash-download-bytes-stream/67918580#67918580
+# html.Button(
+#     "Download reactor CAD files",
+#     title="Click to dowload STL and STP files of the reactor",
+#     id="download_button",
+# ),
+# dcc.Download(id="download_files"),
+# html.Button(
+#     "Simulate reactor",
+#     title="Click to perform an OpenMC simulation of the reactor",
+#     id="reactor_update",
+# ),
 
 
 # @app.callback(
@@ -887,7 +933,7 @@ def update_ballreactor(
     # actor.GetProperty().SetSpecular(0.3)
     # actor.GetProperty().SetSpecularPower(60.0)
 
-    background = [0.9, 0.9, 1.] # 1,1,1, is white
+    background = [0.9, 0.9, 1.0]  # 1,1,1, is white
 
     mesh_state = to_mesh_state(reader.GetOutput())
 
@@ -906,7 +952,7 @@ def update_ballreactor(
         # style={"height": "calc(80vh - 16px)", "width": "75%"},
         style={"height": "calc(65vh - 16px)", "width": "75%"},
         children=html.Div(vtk_view, style={"height": "100%", "width": "100%"}),
-    )#, {"width": "75%", "display": "inline-block"}
+    )  # , {"width": "75%", "display": "inline-block"}
 
 
 @app.callback(
@@ -934,10 +980,10 @@ def update_flfreactor(
     upper_vv_thickness,
     vv_thickness,
     lower_vv_thickness,
-    rotation_angle
+    rotation_angle,
 ):
 
-    print('updating flf')
+    print("updating flf")
     my_reactor = paramak.FlfSystemCodeReactor(
         inner_blanket_radius=float(inner_blanket_radius),
         blanket_thickness=float(blanket_thickness),
@@ -948,8 +994,7 @@ def update_flfreactor(
         upper_vv_thickness=float(upper_vv_thickness),
         vv_thickness=float(vv_thickness),
         lower_vv_thickness=float(lower_vv_thickness),
-        rotation_angle=float(rotation_angle)
-
+        rotation_angle=float(rotation_angle),
     )
     # my_reactor.export_html_3d("assets/reactor_3d.html")
     my_reactor.export_stl("assets/reactor_3d.stl")
@@ -976,7 +1021,7 @@ def update_flfreactor(
     # actor.GetProperty().SetSpecular(0.3)
     # actor.GetProperty().SetSpecularPower(60.0)
 
-    background = [0.9, 0.9, 1.]
+    background = [0.9, 0.9, 1.0]
 
     mesh_state = to_mesh_state(reader.GetOutput())
 
@@ -995,36 +1040,7 @@ def update_flfreactor(
         # style={"height": "calc(80vh - 16px)", "width": "75%"},
         style={"height": "calc(65vh - 16px)", "width": "75%"},
         children=html.Div(vtk_view, style={"height": "100%", "width": "100%"}),
-    )#, {"width": "75%", "display": "inline-block"}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    )  # , {"width": "75%", "display": "inline-block"}
 
 
 if __name__ == "__main__":
@@ -1032,5 +1048,5 @@ if __name__ == "__main__":
         debug=True,
         # when setting debug to True then also set dev_tools_hot_reload to
         # false to avoid bug https://github.com/plotly/dash/issues/1293
-        dev_tools_hot_reload=False
+        dev_tools_hot_reload=False,
     )
