@@ -3,6 +3,9 @@ import io
 import dash
 import dash.dependencies as dd
 
+import requests
+import json
+
 # import dash_core_components as dcc
 # import dash_daq as daq
 # import dash_html_components as html
@@ -341,17 +344,6 @@ flf_system_code_reactor_geometry_input_args_table = html.Table(
         ),
         html.Tr(
             [
-                html.Td("blanket_thickness"),
-                html.Td(
-                    dcc.Input(
-                        id="flf_blanket_thickness",
-                        value=70,
-                    )
-                ),
-            ]
-        ),
-        html.Tr(
-            [
                 html.Td("blanket_height"),
                 html.Td(
                     dcc.Input(
@@ -477,8 +469,19 @@ flf_system_code_reactor_material_input_args_table = html.Table(
                 html.Td("breeder material"),
                 html.Td(
                     dcc.Input(
-                        id="mat_breeder",
+                        id="blanket_material",
                         value="Li",
+                    )
+                ),
+            ]
+        ),
+        html.Tr(
+            [
+                html.Td("Li enrichment"),
+                html.Td(
+                    dcc.Input(
+                        id="lithium_enrichment",
+                        value=7.59,
                     )
                 ),
             ]
@@ -487,9 +490,14 @@ flf_system_code_reactor_material_input_args_table = html.Table(
             [
                 html.Td("vessel material"),
                 html.Td(
-                    dcc.Input(
-                        id="mat_vessel",
+                    dcc.Dropdown(
+                        id="vessel_material",
+                        options=[
+                            {"label": "P91 steel", "value": "P91"},
+                            {"label": "Iron", "value": "Iron"},
+                        ],
                         value="P91",
+                        clearable=False,
                     )
                 ),
             ]
@@ -505,7 +513,7 @@ neutronics_parameters = html.Table(
                 html.Td("batches"),
                 html.Td(
                     dcc.Input(
-                        id="neutronics_batches",
+                        id="simulation_batches",
                         value=10,
                     )
                 ),
@@ -516,7 +524,7 @@ neutronics_parameters = html.Table(
                 html.Td("particles per batch"),
                 html.Td(
                     dcc.Input(
-                        id="neutronics_particles_per_batch",
+                        id="simulation_particles",
                         value=1000,
                     )
                 ),
@@ -524,17 +532,19 @@ neutronics_parameters = html.Table(
         ),
         html.Tr(
             [
-                html.Td("tallies required"),
+                html.Td("results required"),
                 html.Td(
                     dcc.Dropdown(
                         options=[
                             {"label": "TBR", "value": "tbr"},
-                            {"label": "blanket heating", "value": "blanket_heating"},
+                            {"label": "blanket heating", "value": "heating"},
+                            {"label": "DPA", "value": "dpa"},
                             {"label": "dose maps", "value": "dose_maps"},
                             {"label": "dose vtk", "value": "dose_vtk"},
                         ],
-                        value=[],
+                        value=['tbr'],
                         multi=True,
+                        id='results_required'
                     )
                 ),
             ]
@@ -575,7 +585,7 @@ app.layout = html.Div(
                 },
                 {"label": "Work in progress", "value": "another reactor"},
             ],
-            value="BallReactor",
+            value="FlfSystemCodeReactor",
             clearable=False,
             style={"width": "300px", "display": "inline-block"},
         ),
@@ -669,6 +679,7 @@ app.layout = html.Div(
                             title="Click to start a neutronics simulation",
                             id="simulate_button",
                         ),
+                        html.Div(id='simulate_results')
                     ],
                 ),
             ],
@@ -702,14 +713,14 @@ def render_tab_content(active_reactor, active_tab):
     print(active_reactor, active_tab)
     if active_tab is not None:
         if active_reactor == "BallReactor" and active_tab == "geometry":
-            return on, off, on, off, off, off, off
+            return on, off, input_column_on, off, off, off, off
         if active_reactor == "BallReactor" and active_tab == "materials":
             print('active_reactor == "BallReactor" and active_tab=="materials"')
             return off, off, off, off, input_column_on, off, off
         if active_reactor == "BallReactor" and active_tab == "settings":
             return off, off, off, off, off, off, on
         if active_reactor == "FlfSystemCodeReactor" and active_tab == "geometry":
-            return off, on, off, on, off, off, off
+            return off, on, off, input_column_on, off, off, off
         if active_reactor == "FlfSystemCodeReactor" and active_tab == "materials":
             return off, off, off, off, off, on, off
         if active_reactor == "FlfSystemCodeReactor" and active_tab == "settings":
@@ -717,30 +728,6 @@ def render_tab_content(active_reactor, active_tab):
     return f"No tab selected {active_tab}"
 
 
-# @app.callback(
-#     [
-#         Output("geometry-tab", "style"),
-#         Output("materials-div", "style"),
-#         Output("settings-div", "style"),
-#     ],
-#     [Input("tabs", "value")],
-# )
-# def render_tab_content(active_tab):
-#     """
-#     This callback takes the 'active_tab' property as input, as well as the
-#     stored graphs, and renders the tab content depending on what the value of
-#     'active_tab' is.
-#     """
-#     on = {"display": "block"}
-#     off = {"display": "none"}
-#     if active_tab is not None:
-#         if active_tab == "geometry":
-#             return on, off, off
-#         elif active_tab == "materials":
-#             return off, on, off
-#         elif active_tab == "settings":
-#             return off, off, on
-#     return f"No tab selected {active_tab}"
 
 # https://dash.plotly.com/dash-core-components/dropdown
 # https://community.plotly.com/t/create-and-download-zip-file/53704
@@ -769,6 +756,85 @@ def render_tab_content(active_reactor, active_tab):
 #             buf = io.BytesIO(fh.read())
 #     return dcc.send_bytes(write_archive, "some_name.zip")
 #    return send_file("assets/reactor_3d.stl", as_attachment=True)
+
+@app.callback(
+    Output("simulate_results", "children"),
+    Input("simulate_button", "n_clicks"),
+
+    State("results_required", "value"),
+    State("simulation_batches", "value"),
+    State("simulation_particles", "value"),
+
+    State("inner_blanket_radius", "value"),
+    State("blanket_thickness", "value"),
+    State("blanket_height", "value"),
+    State("lower_blanket_thickness", "value"),
+    State("upper_blanket_thickness", "value"),
+    State("blanket_vv_gap", "value"),
+    State("upper_vv_thickness", "value"),
+    State("vv_thickness", "value"),
+    State("lower_vv_thickness", "value"),
+    State("flf_rotation_angle", "value"),
+
+    State("blanket_material", "value"),
+    State("lithium_enrichment", "value"),
+    State("vessel_material", "value"),
+
+    prevent_initial_call=True,
+)
+def clicked_simulate(
+    n_clicks,
+    results_required,
+    simulation_batches,
+    simulation_particles,
+    inner_blanket_radius,
+    blanket_thickness,
+    blanket_height,
+    lower_blanket_thickness,
+    upper_blanket_thickness,
+    blanket_vv_gap,
+    upper_vv_thickness,
+    vv_thickness,
+    lower_vv_thickness,
+    flf_rotation_angle,
+    blanket_material,
+    lithium_enrichment,
+    vessel_material,
+):
+    trigger_id = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+    if trigger_id == "simulate_button":
+        if n_clicks is None or n_clicks == 0:
+            raise dash.exceptions.PreventUpdate
+    
+    payload = {
+        "results_required": results_required,
+        "simulation_batches": simulation_batches,
+        "simulation_particles": simulation_particles,
+        "inner_blanket_radius": inner_blanket_radius,
+        "blanket_thickness": blanket_thickness,
+        "blanket_height": blanket_height,
+        "lower_blanket_thickness": lower_blanket_thickness,
+        "upper_blanket_thickness": upper_blanket_thickness,
+        "blanket_vv_gap": blanket_vv_gap,
+        "upper_vv_thickness": upper_vv_thickness,
+        "vv_thickness": vv_thickness,
+        "lower_vv_thickness": lower_vv_thickness,
+        "rotation_angle": flf_rotation_angle,
+        "blanket_material": blanket_material,
+        "lithium_enrichment": lithium_enrichment,
+        "vessel_material": vessel_material,
+    }
+
+    session = requests.Session()
+
+    # form the request from the URL and arguments
+    url = "https://tgkubvki8f.execute-api.eu-west-2.amazonaws.com/flf_neutronics_api/simulate"
+    response = requests.get(url, params=payload, headers=session.headers).json()
+
+    # converts the response to json and prints to terminal
+    print(json.dumps(response, indent=4, sort_keys=True))
+
+    return html.H1(f'tbr ={response["TBR"]["result"]}')
 
 
 @app.callback(
@@ -959,7 +1025,7 @@ def update_ballreactor(
     Output("flfreactor_viewer", "children"),
     # Output("flfreactor_viewer_div", "style")],
     Input("inner_blanket_radius", "value"),
-    Input("flf_blanket_thickness", "value"),
+    Input("blanket_thickness", "value"),
     Input("blanket_height", "value"),
     Input("lower_blanket_thickness", "value"),
     Input("upper_blanket_thickness", "value"),
