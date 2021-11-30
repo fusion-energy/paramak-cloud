@@ -337,7 +337,7 @@ flf_system_code_reactor_geometry_input_args_table = html.Table(
                 html.Td(
                     dcc.Input(
                         id="blanket_thickness",
-                        value=10,
+                        value=70,
                     )
                 ),
             ]
@@ -542,9 +542,9 @@ neutronics_parameters = html.Table(
                             {"label": "dose maps", "value": "dose_maps"},
                             {"label": "dose vtk", "value": "dose_vtk"},
                         ],
-                        value=['tbr'],
+                        value=["tbr"],
                         multi=True,
-                        id='results_required'
+                        id="results_required",
                     )
                 ),
             ]
@@ -609,7 +609,7 @@ app.layout = html.Div(
                     children=[
                         html.H2("\U0001f449 Input geometric parameters"),
                         ball_reactor_geometry_input_args_table,
-                    ]
+                    ],
                 ),
                 html.Div(
                     id="flfsystemcodereactorreactor_geometry_inputs",
@@ -617,7 +617,7 @@ app.layout = html.Div(
                     children=[
                         html.H2("\U0001f449 Input geometric parameters"),
                         flf_system_code_reactor_geometry_input_args_table,
-                    ]
+                    ],
                 ),
                 html.Div(
                     dcc.Loading(
@@ -674,10 +674,18 @@ app.layout = html.Div(
                     children=[
                         html.H2("\U0001f449 Specify neutronics settings"),
                         neutronics_parameters,
+                        html.Br(),
                         html.Button(
                             "Simulate reactor",
                             title="Click to start a neutronics simulation",
                             id="simulate_button",
+                        ),
+                        html.Br(),
+                        html.Br(),
+                        html.A(
+                            "Link to simulation API",
+                            href="https://tgkubvki8f.execute-api.eu-west-2.amazonaws.com/flf_neutronics_api",
+                            target="_blank",
                         ),
                         dcc.Loading(
                             id="simulate_results",
@@ -731,7 +739,6 @@ def render_tab_content(active_reactor, active_tab):
     return f"No tab selected {active_tab}"
 
 
-
 # https://dash.plotly.com/dash-core-components/dropdown
 # https://community.plotly.com/t/create-and-download-zip-file/53704
 # https://stackoverflow.com/questions/67917360/plotly-dash-download-bytes-stream/67918580#67918580
@@ -760,14 +767,13 @@ def render_tab_content(active_reactor, active_tab):
 #     return dcc.send_bytes(write_archive, "some_name.zip")
 #    return send_file("assets/reactor_3d.stl", as_attachment=True)
 
+
 @app.callback(
     Output("simulate_results", "children"),
     Input("simulate_button", "n_clicks"),
-
     State("results_required", "value"),
     State("simulation_batches", "value"),
     State("simulation_particles", "value"),
-
     State("inner_blanket_radius", "value"),
     State("blanket_thickness", "value"),
     State("blanket_height", "value"),
@@ -778,11 +784,9 @@ def render_tab_content(active_reactor, active_tab):
     State("vv_thickness", "value"),
     State("lower_vv_thickness", "value"),
     State("flf_rotation_angle", "value"),
-
     State("blanket_material", "value"),
     State("lithium_enrichment", "value"),
     State("vessel_material", "value"),
-
     prevent_initial_call=True,
 )
 def clicked_simulate(
@@ -808,9 +812,9 @@ def clicked_simulate(
     if trigger_id == "simulate_button":
         if n_clicks is None or n_clicks == 0:
             raise dash.exceptions.PreventUpdate
-    
+
     payload = {
-        "results_required": results_required,
+        "results_required": ','.join(results_required),
         "simulation_batches": simulation_batches,
         "simulation_particles": simulation_particles,
         "inner_blanket_radius": inner_blanket_radius,
@@ -837,10 +841,30 @@ def clicked_simulate(
     # converts the response to json and prints to terminal
     print(json.dumps(response, indent=4, sort_keys=True))
 
-    return html.H1(f'tbr ={response["TBR"]["result"]}'), \
-        html.A('Link to external site',
-            href='https://plotly.com',
-            target='_blank')
+    children = []
+    print("results_required", results_required)
+    print("response", response)
+    if "tbr" in results_required:
+        if simulation_batches == 1:
+            children.append(html.H1(f'tbr ={response["TBR"]["result"]}'))
+        else:
+            children.append(
+                html.H1(
+                    f'tbr ={response["TBR"]["result"]} ± {response["TBR"]["std. dev."]}'
+                )
+            )
+
+    if "heating" in results_required:
+        if simulation_batches == 1:
+            children.append(html.H1(f'heating ={response["heating"]["result"]}'))
+        else:
+            children.append(
+                html.H1(
+                    f'heating ={response["heating"]["MeV per source particle"]["result"]} ± {response["heating"]["MeV per source particle"]["std. dev."]} MeV per source particle'
+                )
+            )
+
+    return children
 
 
 @app.callback(
