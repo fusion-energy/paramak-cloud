@@ -461,6 +461,7 @@ ball_reactor_material_input_args_table = html.Table(
         ),
     ]
 )
+
 flf_system_code_reactor_material_input_args_table = html.Table(
     # Header
     [
@@ -538,9 +539,9 @@ neutronics_parameters = html.Table(
                         options=[
                             {"label": "TBR", "value": "tbr"},
                             {"label": "blanket heating", "value": "heating"},
-                            {"label": "DPA", "value": "dpa"},
-                            {"label": "dose maps", "value": "dose_maps"},
-                            {"label": "dose vtk", "value": "dose_vtk"},
+                            {"label": "DPA - not implemented yet", "value": "dpa"},
+                            {"label": "dose maps - not implemented yet", "value": "dose_maps"},
+                            {"label": "dose vtk - not implemented yet", "value": "dose_vtk"},
                         ],
                         value=["tbr"],
                         multi=True,
@@ -551,7 +552,6 @@ neutronics_parameters = html.Table(
         ),
     ]
 )
-
 
 app.layout = html.Div(
     [
@@ -603,43 +603,49 @@ app.layout = html.Div(
             id="geometry-tab",
             # style={"display": "none"},
             children=[
-                html.Div(
-                    id="ballreactor_geometry_inputs",
-                    style={"width": "25%", "display": "none"},
-                    children=[
-                        html.H2("\U0001f449 Input geometric parameters"),
-                        ball_reactor_geometry_input_args_table,
-                    ],
-                ),
-                html.Div(
-                    id="flfsystemcodereactorreactor_geometry_inputs",
-                    style={"width": "25%", "display": "none"},
-                    children=[
-                        html.H2("\U0001f449 Input geometric parameters"),
-                        flf_system_code_reactor_geometry_input_args_table,
-                    ],
-                ),
-                html.Div(
-                    dcc.Loading(
-                        id="ballreactor_viewer",
-                        type="default",
-                    ),
-                    id="ballreactor_viewer_div",
-                    style={"width": "75%", "display": "none"},
-                ),
-                html.Div(
-                    dcc.Loading(
-                        id="flfreactor_viewer",
-                        type="default",
-                    ),
-                    id="flfreactor_viewer_div",
-                    style={"width": "75%", "display": "none"},
-                ),
-                # html.Button(
-                #     "Download reactor CAD files",
-                #     title="Click to dowload STL and STP files of the reactor",
-                #     id="download_button",
-                # ),
+                html.Tr([
+                    html.Td([
+                        html.Div(
+                            id="ballreactor_geometry_inputs",
+                            style={"display": "none"},
+                            children=[
+                                html.H2("\U0001f449 Input geometric parameters"),
+                                ball_reactor_geometry_input_args_table,
+                            ],
+                        ),
+                        html.Div(
+                            id="flfsystemcodereactorreactor_geometry_inputs",
+                            style={"display": "none"},
+                            children=[
+                                html.H2("\U0001f449 Input geometric parameters"),
+                                flf_system_code_reactor_geometry_input_args_table,
+                            ],
+                        ),
+                    ], style={"width": "25%", "vertical-align": "top"}),
+                    html.Td([
+                        html.Div(
+                            dcc.Loading(
+                                id="ballreactor_viewer",
+                                type="default",
+                            ),
+                            id="ballreactor_viewer_div",
+                            style={"display": "none"},
+                        ),
+                        html.Div(
+                            dcc.Loading(
+                                id="flfreactor_viewer",
+                                type="default",
+                            ),
+                            id="flfreactor_viewer_div",
+                            style={"display": "none"},
+                        ),
+                    ], style={"width": "75%"})
+                ])
+                    # html.Button(
+                    #     "Download reactor CAD files",
+                    #     title="Click to dowload STL and STP files of the reactor",
+                    #     id="download_button",
+                    # ),
             ],
         ),
         html.Div(
@@ -719,8 +725,8 @@ def render_tab_content(active_reactor, active_tab):
     """
     on = {"display": "inline-block"}
     off = {"display": "none"}
-    input_column_on = {"width": "70%", "display": "inline-block"}
-    input_column_off = {"width": "70%", "display": "none"}
+    input_column_on = {"display": "block"} #"width": "70%", 
+    input_column_off = {"display": "none"}
     print(active_reactor, active_tab)
     if active_tab is not None:
         if active_reactor == "BallReactor" and active_tab == "geometry":
