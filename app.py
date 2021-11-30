@@ -674,10 +674,17 @@ app.layout = html.Div(
                     children=[
                         html.H2("\U0001f449 Specify neutronics settings"),
                         neutronics_parameters,
+                        html.Br(),
                         html.Button(
                             "Simulate reactor",
                             title="Click to start a neutronics simulation",
                             id="simulate_button",
+                        ),
+                        html.Br(),
+                        html.Br(),
+                        html.A('Link to simulation API',
+                            href='https://tgkubvki8f.execute-api.eu-west-2.amazonaws.com/flf_neutronics_api',
+                            target='_blank'
                         ),
                         dcc.Loading(
                             id="simulate_results",
@@ -837,10 +844,22 @@ def clicked_simulate(
     # converts the response to json and prints to terminal
     print(json.dumps(response, indent=4, sort_keys=True))
 
-    return html.H1(f'tbr ={response["TBR"]["result"]}'), \
-        html.A('Link to external site',
-            href='https://plotly.com',
-            target='_blank')
+    children= []
+    print('results_required',  results_required)
+    if 'tbr' in results_required:
+        if simulation_batches==1:
+            children.append(html.H1(f'tbr ={response["TBR"]["result"]}'))
+        else:
+            children.append(html.H1(f'tbr ={response["TBR"]["result"]} ± {response["TBR"]["std. dev."]}'))
+    
+    if 'heating' in results_required:
+        if simulation_batches==1:
+            children.append(html.H1(f'heating ={response["heating"]["result"]}'))
+        else:
+            children.append(html.H1(f'heating ={response["heating"]["result"]} ± {response["TBR"]["std. dev."]}'))
+    
+    return children
+
 
 
 @app.callback(
