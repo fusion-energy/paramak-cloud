@@ -1,15 +1,14 @@
 
-import json
+import json, os
 
 import dash
-import dash_vtk
+
 import paramak
 import requests
-import vtk
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
-from dash_vtk.utils import to_mesh_state
-
+import string
+import random
 
 app = dash.Dash(
     __name__,
@@ -587,7 +586,6 @@ app.layout = html.Div(
                 dcc.Tab(label="Settings", value="settings"),
             ],
         ),
-        # html.Div(id='tabs-content-example-graph'),
         html.Div(
             id="geometry-tab",
             # style={"display": "none"},
@@ -714,8 +712,8 @@ def render_tab_content(active_reactor, active_tab):
     """
     on = {"display": "inline-block"}
     off = {"display": "none"}
-    input_column_on = {"display": "block"} #"width": "70%", 
-    input_column_off = {"display": "none"}
+    input_column_on = {"display": "block"} 
+    # input_column_off = {"display": "none"}
     print(active_reactor, active_tab)
     if active_tab is not None:
         if active_reactor == "BallReactor" and active_tab == "geometry":
@@ -732,35 +730,6 @@ def render_tab_content(active_reactor, active_tab):
         if active_reactor == "FlfSystemCodeReactor" and active_tab == "settings":
             return off, off, off, off, off, off, on
     return f"No tab selected {active_tab}"
-
-
-# https://dash.plotly.com/dash-core-components/dropdown
-# https://community.plotly.com/t/create-and-download-zip-file/53704
-# https://stackoverflow.com/questions/67917360/plotly-dash-download-bytes-stream/67918580#67918580
-# html.Button(
-#     "Download reactor CAD files",
-#     title="Click to dowload STL and STP files of the reactor",
-#     id="download_button",
-# ),
-# dcc.Download(id="download_files"),
-# html.Button(
-#     "Simulate reactor",
-#     title="Click to perform an OpenMC simulation of the reactor",
-#     id="reactor_update",
-# ),
-
-
-# @app.callback(
-#     Output("download_files", "data"),
-#     Input("download_button", "n_clicks"),
-#     prevent_initial_call=True,
-# )
-# def clicked_download(n_clicks):
-#     def write_archive(bytes_io):
-#         with open("assets/reactor_3d.stl", 'rb') as fh:
-#             buf = io.BytesIO(fh.read())
-#     return dcc.send_bytes(write_archive, "some_name.zip")
-#    return send_file("assets/reactor_3d.stl", as_attachment=True)
 
 
 @app.callback(
@@ -919,11 +888,7 @@ def update_ballreactor(
     divertor_position,
     rotation_angle,
 ):
-    # trigger_id = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
-    # if trigger_id == "reactor_update":
-    #     if n_clicks is None or n_clicks == 0:
-    #         raise dash.exceptions.PreventUpdate
-    # else:
+
     if pf_coil_radial_thicknesses == "":
         pf_coil_radial_thicknesses = None
     else:
@@ -999,51 +964,20 @@ def update_ballreactor(
         pf_coil_vertical_position=pf_coil_vertical_position,
         pf_coil_case_thicknesses=pf_coil_case_thicknesses,
     )
-    # my_reactor.export_html_3d("assets/reactor_3d.html")
-    my_reactor.export_stl("assets/reactor_3d.stl")
 
-    # demo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    # head_vti = os.path.join(
-    #     demo_dir, "paramak-cloud", "assets", "reactor_3d.stl"
-    # )
+    os.system('rm assets/*.html')
+    letters = string.ascii_lowercase
+    fn= ''.join(random.choice(letters) for i in range(20)) 
+    my_reactor.export_html_3d(f"assets/{fn}.html")
 
-    # Load dataset from dist
-    reader = vtk.vtkSTLReader()
-    reader.SetFileName("assets/reactor_3d.stl")
-    reader.Update()
-
-    # sets colors
-    # colors = vtk.vtkNamedColors()
-    mapper = vtk.vtkPolyDataMapper()
-    mapper.SetInputConnection(reader.GetOutputPort())
-    actor = vtk.vtkActor()
-    actor.SetMapper(mapper)
-    actor.GetProperty().SetColor((1, 0, 0))
-    # actor.GetProperty().SetDiffuse(0.8)
-    # actor.GetProperty().SetDiffuseColor(colors.GetColor3d('LightSteelBlue'))
-    # actor.GetProperty().SetSpecular(0.3)
-    # actor.GetProperty().SetSpecularPower(60.0)
-
-    background = [0.9, 0.9, 1.0]  # 1,1,1, is white
-
-    mesh_state = to_mesh_state(reader.GetOutput())
-
-    vtk_view = dash_vtk.View(
-        dash_vtk.GeometryRepresentation(
-            dash_vtk.Mesh(state=mesh_state),
-        ),
-        # cameraViewUp=[0,0,0],
-        # cameraPosition=[1000,-1000,-1000],
-        background=background,
+    return html.Iframe(
+        src=f"assets/{fn}.html",
+        width="100%",
+        height="100vh",
+        title="Paramak.export_html",
+        style={"border": 0, "scrolling": "0", "height": "100vh "},
     )
 
-    return html.Div(
-        id="reactor_viewer",
-        # children=[html.Div(vtk_view)]
-        # style={"height": "calc(80vh - 16px)", "width": "75%"},
-        style={"height": "calc(65vh - 16px)", "width": "75%"},
-        children=html.Div(vtk_view, style={"height": "100%", "width": "100%"}),
-    )  # , {"width": "75%", "display": "inline-block"}
 
 
 @app.callback(
@@ -1087,57 +1021,25 @@ def update_flfreactor(
         lower_vv_thickness=float(lower_vv_thickness),
         rotation_angle=float(rotation_angle),
     )
-    # my_reactor.export_html_3d("assets/reactor_3d.html")
-    my_reactor.export_stl("assets/reactor_3d.stl")
 
-    # demo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    # head_vti = os.path.join(
-    #     demo_dir, "paramak-cloud", "assets", "reactor_3d.stl"
-    # )
+    os.system('rm assets/*.html')
+    letters = string.ascii_lowercase
+    fn= ''.join(random.choice(letters) for i in range(20)) 
+    my_reactor.export_html_3d(f"assets/{fn}.html")
 
-    # Load dataset from dist
-    reader = vtk.vtkSTLReader()
-    reader.SetFileName("assets/reactor_3d.stl")
-    reader.Update()
-
-    # sets colors
-    # colors = vtk.vtkNamedColors()
-    mapper = vtk.vtkPolyDataMapper()
-    mapper.SetInputConnection(reader.GetOutputPort())
-    actor = vtk.vtkActor()
-    actor.SetMapper(mapper)
-    actor.GetProperty().SetColor((1, 0, 0))
-    # actor.GetProperty().SetDiffuse(0.8)
-    # actor.GetProperty().SetDiffuseColor(colors.GetColor3d('LightSteelBlue'))
-    # actor.GetProperty().SetSpecular(0.3)
-    # actor.GetProperty().SetSpecularPower(60.0)
-
-    background = [0.9, 0.9, 1.0]
-
-    mesh_state = to_mesh_state(reader.GetOutput())
-
-    vtk_view = dash_vtk.View(
-        dash_vtk.GeometryRepresentation(
-            dash_vtk.Mesh(state=mesh_state),
-        ),
-        # cameraViewUp=[0,0,0],
-        # cameraPosition=[1000,-1000,-1000],
-        background=background,
+    return html.Iframe(
+        src=f"assets/{fn}.html",
+        width="100%",
+        height="100vh",
+        title="Paramak.export_html",
+        style={"border": 0, "scrolling": "0", "height": "100vh "},
     )
-
-    return html.Div(
-        id="reactor_viewer",
-        # children=[html.Div(vtk_view)]
-        # style={"height": "calc(80vh - 16px)", "width": "75%"},
-        style={"height": "calc(65vh - 16px)", "width": "75%"},
-        children=html.Div(vtk_view, style={"height": "100%", "width": "100%"}),
-    )  # , {"width": "75%", "display": "inline-block"}
 
 
 if __name__ == "__main__":
     app.run_server(
-        debug=True,
+        # debug=True,
         # when setting debug to True then also set dev_tools_hot_reload to
         # false to avoid bug https://github.com/plotly/dash/issues/1293
-        dev_tools_hot_reload=False,
+        # dev_tools_hot_reload=False,
     )
