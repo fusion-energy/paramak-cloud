@@ -1,26 +1,15 @@
-import os
-import io
-import dash
-import dash.dependencies as dd
 
-import requests
 import json
 
-# import dash_core_components as dcc
-# import dash_daq as daq
-# import dash_html_components as html
-
-from dash import dcc
-
-# import dash_daq as daq
-
+import dash
 import dash_vtk
 import paramak
+import requests
 import vtk
-from dash import html
+from dash import dcc, html
 from dash.dependencies import Input, Output, State
-from dash_vtk.utils import to_mesh_state, to_volume_state
-from flask import send_file
+from dash_vtk.utils import to_mesh_state
+
 
 app = dash.Dash(
     __name__,
