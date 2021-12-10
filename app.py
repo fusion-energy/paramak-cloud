@@ -608,6 +608,17 @@ app.layout = html.Div(
                                 flf_system_code_reactor_geometry_input_args_table,
                             ],
                         ),
+                        html.Br(),
+                        html.Button(
+                            "Download STL",
+                            title="Click to dowload the reactor CAD in STL file format",
+                            id="download_stl_button",
+                        ),
+                        html.Button(
+                            "Download STP",
+                            title="Click to dowload the reactor CAD in STP file format",
+                            id="download_stp_button",
+                        ), 
                     ], style={"width": "25%", "vertical-align": "top"}),
                     html.Td([
                         html.Div(
@@ -626,13 +637,8 @@ app.layout = html.Div(
                             id="flfreactor_viewer_div",
                             style={"display": "none"},
                         ),
-                    ], style={"width": "75%"})
-                ])
-                    # html.Button(
-                    #     "Download reactor CAD files",
-                    #     title="Click to dowload STL and STP files of the reactor",
-                    #     id="download_button",
-                    # ),
+                    ], style={"width": "75%"}),
+                ]),
             ],
         ),
         html.Div(
@@ -688,10 +694,71 @@ app.layout = html.Div(
                 ),
             ],
         ),
+        dcc.Download(id="download-cad")
     ]
 )
 
 
+@app.callback(
+    Output("download-cad", "data"),
+    State("reactor_selector", "value"),
+    State("inner_blanket_radius", "value"),
+    State("blanket_thickness", "value"),
+    State("blanket_height", "value"),
+    State("lower_blanket_thickness", "value"),
+    State("upper_blanket_thickness", "value"),
+    State("blanket_vv_gap", "value"),
+    State("upper_vv_thickness", "value"),
+    State("vv_thickness", "value"),
+    State("lower_vv_thickness", "value"),
+    State("flf_rotation_angle", "value"),
+    Input("download_stp_button", "n_clicks"),
+    prevent_initial_call=True,
+)
+def func2(
+    reactor_selector,
+    inner_blanket_radius,
+    blanket_thickness,
+    blanket_height,
+    lower_blanket_thickness,
+    upper_blanket_thickness,
+    blanket_vv_gap,
+    upper_vv_thickness,
+    vv_thickness,
+    lower_vv_thickness,
+    flf_rotation_angle,
+    n_clicks
+):
+    if reactor_selector == 'FlfSystemCodeReactor':
+        my_reactor = paramak.FlfSystemCodeReactor(
+            inner_blanket_radius=float(inner_blanket_radius),
+            blanket_thickness=float(blanket_thickness),
+            blanket_height=float(blanket_height),
+            lower_blanket_thickness=float(lower_blanket_thickness),
+            upper_blanket_thickness=float(upper_blanket_thickness),
+            blanket_vv_gap=float(blanket_vv_gap),
+            upper_vv_thickness=float(upper_vv_thickness),
+            vv_thickness=float(vv_thickness),
+            lower_vv_thickness=float(lower_vv_thickness),
+            rotation_angle=float(flf_rotation_angle),
+        )
+
+    my_reactor.export_stp(f"assets/paramak.stp")
+    return dcc.send_file(
+        "assets/paramak.stp"
+    )
+
+# @app.callback(
+#     Output("download-cad", "data"),
+#     State("reactor_selector", "value"),
+#     Input("download_stl_button", "n_clicks"),
+#     prevent_initial_call=True,
+# )
+# def func(n_clicks):
+#     return dcc.send_file(
+#         "assets/reactor_3d.stp"
+#     )
+    
 @app.callback(
     [
         Output("ballreactor_geometry_inputs", "style"),
@@ -719,7 +786,6 @@ def render_tab_content(active_reactor, active_tab):
         if active_reactor == "BallReactor" and active_tab == "geometry":
             return on, off, input_column_on, off, off, off, off
         if active_reactor == "BallReactor" and active_tab == "materials":
-            print('active_reactor == "BallReactor" and active_tab=="materials"')
             return off, off, off, off, input_column_on, off, off
         if active_reactor == "BallReactor" and active_tab == "settings":
             return off, off, off, off, off, off, on
