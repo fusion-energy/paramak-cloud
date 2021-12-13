@@ -619,6 +619,11 @@ app.layout = html.Div(
                             title="Click to dowload the reactor CAD in STP file format",
                             id="download_stp_button",
                         ), 
+                        html.Button(
+                            "Download HTML",
+                            title="Click to dowload the reactor CAD in HTML file format",
+                            id="download_html_button",
+                        ), 
                     ], style={"width": "25%", "vertical-align": "top"}),
                     html.Td([
                         html.Div(
@@ -695,9 +700,193 @@ app.layout = html.Div(
             ],
         ),
         dcc.Download(id="download-stp"),
-        dcc.Download(id="download-stl")
+        dcc.Download(id="download-stl"),
+        dcc.Download(id="download-html")
     ]
 )
+
+
+@app.callback(
+    Output("download-html", "data"),
+    State("reactor_selector", "value"),
+
+    State("inner_blanket_radius", "value"),
+    State("blanket_thickness", "value"),
+    State("blanket_height", "value"),
+    State("lower_blanket_thickness", "value"),
+    State("upper_blanket_thickness", "value"),
+    State("blanket_vv_gap", "value"),
+    State("upper_vv_thickness", "value"),
+    State("vv_thickness", "value"),
+    State("lower_vv_thickness", "value"),
+    State("flf_rotation_angle", "value"),
+
+    State("inner_bore_radial_thickness", "value"),
+    State("inboard_tf_leg_radial_thickness", "value"),
+    State("center_column_shield_radial_thickness", "value"),
+    State("divertor_radial_thickness", "value"),
+    State("inner_plasma_gap_radial_thickness", "value"),
+    State("plasma_radial_thickness", "value"),
+    State("outer_plasma_gap_radial_thickness", "value"),
+    State("firstwall_radial_thickness", "value"),
+    State("blanket_radial_thickness", "value"),
+    State("blanket_rear_wall_radial_thickness", "value"),
+    State("plasma_gap_vertical_thickness", "value"),
+    State("elongation", "value"),
+    State("triangularity", "value"),
+    State("divertor_to_tf_gap_vertical_thickness", "value"),
+    State("number_of_tf_coils", "value"),
+    State("rear_blanket_to_tf_gap", "value"),
+    State("pf_coil_radial_thicknesses", "value"),
+    State("pf_coil_vertical_thicknesses", "value"),
+    State("pf_coil_radial_position", "value"),
+    State("pf_coil_vertical_position", "value"),
+    State("pf_coil_case_thicknesses", "value"),
+    State("outboard_tf_coil_radial_thickness", "value"),
+    State("outboard_tf_coil_poloidal_thickness", "value"),
+    State("divertor_position", "value"),
+    State("rotation_angle", "value"),
+
+    Input("download_html_button", "n_clicks"),
+    prevent_initial_call=True,
+)
+def make_html_for_download(
+    reactor_selector,
+    inner_blanket_radius,
+    blanket_thickness,
+    blanket_height,
+    lower_blanket_thickness,
+    upper_blanket_thickness,
+    blanket_vv_gap,
+    upper_vv_thickness,
+    vv_thickness,
+    lower_vv_thickness,
+    flf_rotation_angle,
+
+    inner_bore_radial_thickness,
+    inboard_tf_leg_radial_thickness,
+    center_column_shield_radial_thickness,
+    divertor_radial_thickness,
+    inner_plasma_gap_radial_thickness,
+    plasma_radial_thickness,
+    outer_plasma_gap_radial_thickness,
+    firstwall_radial_thickness,
+    blanket_radial_thickness,
+    blanket_rear_wall_radial_thickness,
+    plasma_gap_vertical_thickness,
+    elongation,
+    triangularity,
+    divertor_to_tf_gap_vertical_thickness,
+    number_of_tf_coils,
+    rear_blanket_to_tf_gap,
+    pf_coil_radial_thicknesses,
+    pf_coil_vertical_thicknesses,
+    pf_coil_radial_position,
+    pf_coil_vertical_position,
+    pf_coil_case_thicknesses,
+    outboard_tf_coil_radial_thickness,
+    outboard_tf_coil_poloidal_thickness,
+    divertor_position,
+    rotation_angle,
+
+    n_clicks
+):
+    if reactor_selector == 'FlfSystemCodeReactor':
+        my_reactor = paramak.FlfSystemCodeReactor(
+            inner_blanket_radius=float(inner_blanket_radius),
+            blanket_thickness=float(blanket_thickness),
+            blanket_height=float(blanket_height),
+            lower_blanket_thickness=float(lower_blanket_thickness),
+            upper_blanket_thickness=float(upper_blanket_thickness),
+            blanket_vv_gap=float(blanket_vv_gap),
+            upper_vv_thickness=float(upper_vv_thickness),
+            vv_thickness=float(vv_thickness),
+            lower_vv_thickness=float(lower_vv_thickness),
+            rotation_angle=float(flf_rotation_angle),
+        )
+    if reactor_selector == 'BallReactor':
+
+
+        if pf_coil_radial_thicknesses == "":
+            pf_coil_radial_thicknesses = None
+        else:
+            pf_coil_radial_thicknesses = [
+                float(val) for val in str(pf_coil_radial_thicknesses).split(",")
+            ]
+
+        if pf_coil_vertical_thicknesses == "":
+            pf_coil_vertical_thicknesses = None
+        else:
+            pf_coil_vertical_thicknesses = [
+                float(val) for val in str(pf_coil_vertical_thicknesses).split(",")
+            ]
+
+        if pf_coil_radial_position == "":
+            pf_coil_radial_position = None
+        else:
+            pf_coil_radial_position = [
+                float(val) for val in str(pf_coil_radial_position).split(",")
+            ]
+
+        if pf_coil_vertical_position == "":
+            pf_coil_vertical_position = None
+        else:
+            pf_coil_vertical_position = [
+                float(val) for val in str(pf_coil_vertical_position).split(",")
+            ]
+
+        if pf_coil_case_thicknesses == "":
+            pf_coil_case_thicknesses = None
+        else:
+            pf_coil_case_thicknesses = [
+                float(val) for val in str(pf_coil_case_thicknesses).split(",")
+            ]
+
+        if rear_blanket_to_tf_gap == "":
+            rear_blanket_to_tf_gap = None
+
+        if outboard_tf_coil_radial_thickness == "":
+            outboard_tf_coil_radial_thickness = None
+
+        if outboard_tf_coil_poloidal_thickness == "":
+            outboard_tf_coil_poloidal_thickness = None
+
+        my_reactor = paramak.BallReactor(
+            inner_bore_radial_thickness=float(inner_bore_radial_thickness),
+            inboard_tf_leg_radial_thickness=float(inboard_tf_leg_radial_thickness),
+            center_column_shield_radial_thickness=float(
+                center_column_shield_radial_thickness
+            ),
+            divertor_radial_thickness=float(divertor_radial_thickness),
+            inner_plasma_gap_radial_thickness=float(inner_plasma_gap_radial_thickness),
+            plasma_radial_thickness=float(plasma_radial_thickness),
+            outer_plasma_gap_radial_thickness=float(outer_plasma_gap_radial_thickness),
+            blanket_radial_thickness=float(blanket_radial_thickness),
+            blanket_rear_wall_radial_thickness=float(blanket_rear_wall_radial_thickness),
+            plasma_gap_vertical_thickness=float(plasma_gap_vertical_thickness),
+            elongation=float(elongation),
+            triangularity=float(triangularity),
+            firstwall_radial_thickness=float(firstwall_radial_thickness),
+            divertor_to_tf_gap_vertical_thickness=float(
+                divertor_to_tf_gap_vertical_thickness
+            ),
+            number_of_tf_coils=float(number_of_tf_coils),
+            rear_blanket_to_tf_gap=rear_blanket_to_tf_gap,
+            outboard_tf_coil_radial_thickness=outboard_tf_coil_radial_thickness,
+            outboard_tf_coil_poloidal_thickness=outboard_tf_coil_poloidal_thickness,
+            rotation_angle=float(rotation_angle),
+            divertor_position=divertor_position,
+            pf_coil_radial_thicknesses=pf_coil_radial_thicknesses,
+            pf_coil_vertical_thicknesses=pf_coil_vertical_thicknesses,
+            pf_coil_radial_position=pf_coil_radial_position,
+            pf_coil_vertical_position=pf_coil_vertical_position,
+            pf_coil_case_thicknesses=pf_coil_case_thicknesses,
+        )
+
+    my_reactor.export_html_3d(f"assets/paramak.html")
+    return dcc.send_file(
+        "assets/paramak.html"
+    )
 
 
 @app.callback(
