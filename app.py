@@ -1,15 +1,14 @@
 
 import json, os
-from utils import make_ballreactor_paramak_object
+from utils import make_ballreactor_paramak_object, make_flfsystemcodereactor_paramak_object
 import dash
 
-from paramak import FlfSystemCodeReactor
 import requests
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
 import string
 import random
-
+from dash_daq import NumericInput
 
 app = dash.Dash(
     __name__,
@@ -235,9 +234,12 @@ ball_reactor_geometry_input_args_table = html.Table(
             [
                 html.Td("number of tf coils", style={'white-space': 'nowrap'}),
                 html.Td( #  could be numericalinput which allows ints
-                    dcc.Input(
+
+                    NumericInput(
                         id="number_of_tf_coils",
-                        value=12,
+                        value=0,
+                        min=0,
+                        max=100,
                     )
                 ),
             ]
@@ -248,7 +250,7 @@ ball_reactor_geometry_input_args_table = html.Table(
                 html.Td(
                     dcc.Input(
                         id="rear_blanket_to_tf_gap",
-                        value="",
+                        value=50,
                     )
                 ),
             ]
@@ -259,7 +261,7 @@ ball_reactor_geometry_input_args_table = html.Table(
                 html.Td(
                     dcc.Input(
                         id="pf_coil_radial_thicknesses",
-                        value="",
+                        value="20,50,50,20",
                     )
                 ),
             ]
@@ -270,7 +272,7 @@ ball_reactor_geometry_input_args_table = html.Table(
                 html.Td(
                     dcc.Input(
                         id="pf_coil_vertical_thicknesses",
-                        value="",
+                        value="20,50,50,20",
                     )
                 ),
             ]
@@ -282,7 +284,7 @@ ball_reactor_geometry_input_args_table = html.Table(
                     dcc.Input(
                         type="text",
                         id="pf_coil_radial_position",
-                        value="",
+                        value="500,575,575,500",
                     )
                 ),
             ]
@@ -294,7 +296,7 @@ ball_reactor_geometry_input_args_table = html.Table(
                     dcc.Input(
                         type="text",
                         id="pf_coil_vertical_position",
-                        value="",
+                        value="300,100,-100,-300",
                     )
                 ),
             ]
@@ -305,7 +307,7 @@ ball_reactor_geometry_input_args_table = html.Table(
                 html.Td(
                     dcc.Input(
                         id="pf_coil_case_thicknesses",
-                        value="",
+                        value="10,10,10,10",
                     )
                 ),
             ]
@@ -316,7 +318,7 @@ ball_reactor_geometry_input_args_table = html.Table(
                 html.Td(
                     dcc.Input(  # note this can be None
                         id="outboard_tf_coil_radial_thickness",
-                        value="",
+                        value=100,
                         type="number",
                         min=1,
                         max=1000,
@@ -331,7 +333,7 @@ ball_reactor_geometry_input_args_table = html.Table(
                 html.Td(
                     dcc.Input(  # note this can be None
                         id="outboard_tf_coil_poloidal_thickness",
-                        value="",
+                        value=50,
                         type="number",
                         min=1,
                         max=1000,
@@ -558,19 +560,19 @@ flf_system_code_reactor_geometry_input_args_table = html.Table(
                 html.Button(
                     "Download STL",
                     title="Click to dowload the reactor CAD in STL file format",
-                    id="download_stl_button",
+                    id="download_flf_stl_button",
                     style={'margin': '5px'}
                 ),
                 html.Button(
                     "Download STP",
                     title="Click to dowload the reactor CAD in STP file format",
-                    id="download_stp_button",
+                    id="download_flf_stp_button",
                     style={'margin': '5px'}
                 ), 
                 html.Button(
                     "Download HTML",
                     title="Click to dowload the reactor CAD in HTML file format",
-                    id="download_html_button",
+                    id="download_flf_html_button",
                     style={'margin': '5px'}
                 ),
             ],
@@ -652,15 +654,91 @@ flf_system_code_reactor_material_input_args_table = html.Table(
     ]
 )
 
-neutronics_parameters = html.Table(
+
+ballreactor_neutronics_parameters = html.Table(
     # Header
     [
+        html.Tr(
+            [
+                # html.H2("\U0001f449 Specify neutronics settings"),
+                html.H2("not implemented yet")
+            ]
+        ),
+        # html.Tr(
+        #     [
+        #         html.Td("batches"),
+        #         html.Td(
+        #             dcc.Input(
+        #                 id="simulation_batches",
+        #                 value=10,
+        #             )
+        #         ),
+        #     ]
+        # ),
+        # html.Tr(
+        #     [
+        #         html.Td("particles per batch"),
+        #         html.Td(
+        #             dcc.Input(
+        #                 id="simulation_particles",
+        #                 value=1000,
+        #             )
+        #         ),
+        #     ]
+        # ),
+        # html.Tr(
+        #     [
+        #         html.Td("results required"),
+        #         html.Td(
+        #             dcc.Dropdown(
+        #                 options=[
+        #                     {"label": "TBR", "value": "tbr"},
+        #                     {"label": "blanket heating", "value": "heating"},
+        #                     {"label": "DPA - not implemented yet", "value": "dpa"},
+        #                     {"label": "dose maps - not implemented yet", "value": "dose_maps"},
+        #                     {"label": "dose vtk - not implemented yet", "value": "dose_vtk"},
+        #                 ],
+        #                 value=["tbr"],
+        #                 multi=True,
+        #                 id="results_required",
+        #             )
+        #         ),
+        #     ]
+        # ),
+        # html.Br(),
+        # html.Button(
+        #     "Simulate reactor",
+        #     title="Click to start a neutronics simulation",
+        #     id="simulate_button",
+        # ),
+        # html.Br(),
+        # html.Br(),
+        # html.A(
+        #     "Link to simulation API",
+        #     href="https://tgkubvki8f.execute-api.eu-west-2.amazonaws.com/flf_neutronics_api",
+        #     target="_blank",
+        # ),
+        # dcc.Loading(
+        #     id="simulate_results",
+        #     type="default",
+        # ),
+    ]
+)
+
+flf_system_code_reactor_neutronics_parameters = html.Table(
+    # Header
+    [
+        # html.Tr(
+        #     [
+        #         html.H2("\U0001f449 Specify neutronics settings")
+        #     ]
+        # ),
         html.Tr(
             [
                 html.Td("batches"),
                 html.Td(
                     dcc.Input(
-                        id="simulation_batches",
+                        id="simulation_flfsystemcodereactor_batches",
                         value=10,
                     )
                 ),
@@ -671,7 +749,7 @@ neutronics_parameters = html.Table(
                 html.Td("particles per batch"),
                 html.Td(
                     dcc.Input(
-                        id="simulation_particles",
+                        id="simulation_flfsystemcodereactor_particles",
                         value=1000,
                     )
                 ),
@@ -691,10 +769,27 @@ neutronics_parameters = html.Table(
                         ],
                         value=["tbr"],
                         multi=True,
-                        id="results_required",
+                        id="results_flfsystemcodereactor_required",
                     )
                 ),
             ]
+        ),
+        html.Br(),
+        html.Button(
+            "Simulate reactor",
+            title="Click to start a neutronics simulation",
+            id="simulate_flfsystemcodereactor_button",
+        ),
+        html.Br(),
+        html.Br(),
+        html.A(
+            "Link to simulation API",
+            href="https://tgkubvki8f.execute-api.eu-west-2.amazonaws.com/flf_neutronics_api",
+            target="_blank",
+        ),
+        dcc.Loading(
+            id="simulate_flfsystemcodereactor_results",
+            type="default",
         ),
     ]
 )
@@ -717,23 +812,31 @@ app.layout = html.Div(
             "This webpage is under development and not fully functional yet.",
             style={"color": "red", "text-align": "center"},
         ),
-        html.H2(
-            "\U0001f449 Select a reactor",
-            style={"width": "300px", "display": "inline-block"},
-        ),
-        dcc.Dropdown(
-            id="reactor_selector",
-            options=[
-                {"label": "BallReactor", "value": "BallReactor"},
-                {
-                    "label": "FLF System Code Reactor",
-                    "value": "FlfSystemCodeReactor",
-                },
-                {"label": "Work in progress", "value": "another reactor"},
-            ],
-            value="FlfSystemCodeReactor",
-            clearable=False,
-            style={"width": "300px", "display": "inline-block"},
+        html.Br(),
+        html.Br(),
+        html.Br(),
+        html.Div(
+            style={"text-align": "center"},
+            children=[
+                html.H2(
+                    "\U0001f449 Select a reactor",
+                    style={"width": "300px", "display": "inline-block", "text-align": "center"},
+                ),
+                dcc.Dropdown(
+                    id="reactor_selector",
+                    options=[
+                        {"label": "BallReactor", "value": "BallReactor"},
+                        {
+                            "label": "FLF System Code Reactor",
+                            "value": "FlfSystemCodeReactor",
+                        },
+                        # {"label": "Work in progress", "value": "another reactor"},
+                    ],
+                    # value="",
+                    clearable=False,
+                    style={"width": "300px", "display": "inline-block", "text-align": "center"},
+                ),
+            ]
         ),
         dcc.Tabs(
             id="tabs",
@@ -743,6 +846,7 @@ app.layout = html.Div(
                 dcc.Tab(label="Materials", value="materials"),
                 dcc.Tab(label="Settings", value="settings"),
             ],
+            style={"display": "none"},
         ),
         html.Div(
             id="geometry-tab",
@@ -759,7 +863,7 @@ app.layout = html.Div(
                             ],
                         ),
                         html.Div(
-                            id="flfsystemcodereactorreactor_geometry_inputs",
+                            id="flfsystemcodereactor_geometry_inputs",
                             style={"display": "none"},
                             children=[
                                 html.H2("\U0001f449 Input geometric parameters"),
@@ -801,7 +905,7 @@ app.layout = html.Div(
                     ],
                 ),
                 html.Div(
-                    id="flfsystemcodereactorreactor_material_inputs",
+                    id="flfsystemcodereactor_material_inputs",
                     style={"width": "25%", "display": "none"},
                     children=[
                         html.H2("\U0001f449 Select materials"),
@@ -816,26 +920,22 @@ app.layout = html.Div(
             children=[
                 html.Div(
                     id="settings_inputs",
-                    style={"width": "25%", "display": "none"},
                     children=[
-                        html.H2("\U0001f449 Specify neutronics settings"),
-                        neutronics_parameters,
-                        html.Br(),
-                        html.Button(
-                            "Simulate reactor",
-                            title="Click to start a neutronics simulation",
-                            id="simulate_button",
+                        html.Div(
+                            id="ballreactor_settings_inputs",
+                            style={"width": "25%", "display": "none"},
+                            children=[
+                                html.H2("\U0001f449 Specify neutronics settings"),
+                                ballreactor_neutronics_parameters,
+                            ],
                         ),
-                        html.Br(),
-                        html.Br(),
-                        html.A(
-                            "Link to simulation API",
-                            href="https://tgkubvki8f.execute-api.eu-west-2.amazonaws.com/flf_neutronics_api",
-                            target="_blank",
-                        ),
-                        dcc.Loading(
-                            id="simulate_results",
-                            type="default",
+                        html.Div(
+                            id="flfsystemcodereactor_settings_inputs",
+                            style={"width": "25%", "display": "none"},
+                            children=[
+                                html.H2("\U0001f449 Specify neutronics settings"),
+                                flf_system_code_reactor_neutronics_parameters,
+                            ],
                         ),
                     ],
                 ),
@@ -863,7 +963,7 @@ app.layout = html.Div(
     State("vv_thickness", "value"),
     State("lower_vv_thickness", "value"),
     State("flf_rotation_angle", "value"),
-    Input("download_stl_button", "n_clicks"),
+    Input("download_flf_stl_button", "n_clicks"),
     prevent_initial_call=True,
 )
 def make_stl_for_download(
@@ -880,7 +980,7 @@ def make_stl_for_download(
     n_clicks
 ):
 
-    my_reactor = FlfSystemCodeReactor(
+    my_reactor = make_flfsystemcodereactor_paramak_object(
         inner_blanket_radius=inner_blanket_radius,
         blanket_thickness=blanket_thickness,
         blanket_height=blanket_height,
@@ -893,9 +993,9 @@ def make_stl_for_download(
         rotation_angle=float(flf_rotation_angle),
     )
 
-    my_reactor.export_stl(f"assets/paramak.stl")
+    my_reactor.export_stl(f"assets/flfsystemcodereactor.stl")
     return dcc.send_file(
-        "assets/paramak.stl"
+        "assets/flfsystemcodereactor.stl"
     )
 
 
@@ -986,9 +1086,9 @@ def make_ballreactor_stl_for_download(
         rotation_angle,
     )
 
-    my_reactor.export_stl(f"assets/paramak.stl")
+    my_reactor.export_stl(f"assets/ballreactor.stl")
     return dcc.send_file(
-        "assets/paramak.stl"
+        "assets/ballreactor.stl"
     )
 
 @app.callback(
@@ -1078,9 +1178,9 @@ def make_ballreactor_html_for_download(
         rotation_angle,
     )
 
-    my_reactor.export_html_3d(f"assets/paramak.html")
+    my_reactor.export_html_3d(f"assets/ballreactor.html")
     return dcc.send_file(
-        "assets/paramak.html"
+        "assets/ballreactor.html"
     )
 
 
@@ -1096,7 +1196,7 @@ def make_ballreactor_html_for_download(
     State("vv_thickness", "value"),
     State("lower_vv_thickness", "value"),
     State("flf_rotation_angle", "value"),
-    Input("download_html_button", "n_clicks"),
+    Input("download_flf_html_button", "n_clicks"),
     prevent_initial_call=True,
 )
 def make_html_for_download(
@@ -1112,7 +1212,7 @@ def make_html_for_download(
     flf_rotation_angle,
     n_clicks
 ):
-    my_reactor = FlfSystemCodeReactor(
+    my_reactor = make_flfsystemcodereactor_paramak_object(
         inner_blanket_radius=inner_blanket_radius,
         blanket_thickness=blanket_thickness,
         blanket_height=blanket_height,
@@ -1125,9 +1225,9 @@ def make_html_for_download(
         rotation_angle=float(flf_rotation_angle),
     )
 
-    my_reactor.export_html_3d(f"assets/paramak.html")
+    my_reactor.export_html_3d(f"assets/flfsystemcodereactor.html")
     return dcc.send_file(
-        "assets/paramak.html"
+        "assets/flfsystemcodereactor.html"
     )
 
 
@@ -1143,7 +1243,7 @@ def make_html_for_download(
     State("vv_thickness", "value"),
     State("lower_vv_thickness", "value"),
     State("flf_rotation_angle", "value"),
-    Input("download_stp_button", "n_clicks"),
+    Input("download_flf_stp_button", "n_clicks"),
     prevent_initial_call=True,
 )
 def make_stp_for_download(
@@ -1160,7 +1260,7 @@ def make_stp_for_download(
     n_clicks
 ):
 
-    my_reactor = FlfSystemCodeReactor(
+    my_reactor = make_flfsystemcodereactor_paramak_object(
         inner_blanket_radius=inner_blanket_radius,
         blanket_thickness=blanket_thickness,
         blanket_height=blanket_height,
@@ -1173,9 +1273,9 @@ def make_stp_for_download(
         rotation_angle=float(flf_rotation_angle),
     )
 
-    my_reactor.export_stp(f"assets/paramak.stp")
+    my_reactor.export_stp(f"assets/flfsystemcodereactor.stp")
     return dcc.send_file(
-        "assets/paramak.stp"
+        "assets/flfsystemcodereactor.stp"
     )
 
 
@@ -1266,23 +1366,26 @@ def make_ballreactor_stp_for_download(
         rotation_angle,
     )
 
-    my_reactor.export_stp(f"assets/paramak.stp")
+    my_reactor.export_stp(f"assets/ballreactor.stp")
     return dcc.send_file(
-        "assets/paramak.stp"
+        "assets/ballreactor.stp"
     )
 
     
 @app.callback(
     [
+        Output("tabs", "style"),
         Output("ballreactor_geometry_inputs", "style"),
-        Output("flfsystemcodereactorreactor_geometry_inputs", "style"),
+        Output("flfsystemcodereactor_geometry_inputs", "style"),
         Output("ballreactor_viewer_div", "style"),
         Output("flfreactor_viewer_div", "style"),
         Output("ballreactor_material_inputs", "style"),
-        Output("flfsystemcodereactorreactor_material_inputs", "style"),
-        Output("settings_inputs", "style"),
+        Output("flfsystemcodereactor_material_inputs", "style"),
+        Output("ballreactor_settings_inputs", "style"),
+        Output("flfsystemcodereactor_settings_inputs", "style"),
     ],
     [Input("reactor_selector", "value"), Input("tabs", "value")],
+    prevent_initial_call=True,
 )
 def render_tab_content(active_reactor, active_tab):
     """
@@ -1295,19 +1398,24 @@ def render_tab_content(active_reactor, active_tab):
     input_column_on = {"display": "block"} 
     # input_column_off = {"display": "none"}
     print(active_reactor, active_tab)
+
     if active_tab is not None:
         if active_reactor == "BallReactor" and active_tab == "geometry":
-            return on, off, input_column_on, off, off, off, off
+            return on, on, off, input_column_on, off, off, off, off, off
         if active_reactor == "BallReactor" and active_tab == "materials":
-            return off, off, off, off, input_column_on, off, off
+            return on, off, off, off, off, input_column_on, off, off, off
         if active_reactor == "BallReactor" and active_tab == "settings":
-            return off, off, off, off, off, off, on
+            return on, off, off, off, off, off, off, on, off
         if active_reactor == "FlfSystemCodeReactor" and active_tab == "geometry":
-            return off, on, off, input_column_on, off, off, off
+            return on, off, on, off, input_column_on, off, off, off, off
         if active_reactor == "FlfSystemCodeReactor" and active_tab == "materials":
-            return off, off, off, off, off, on, off
+            return on, off, off, off, off, off, on, off, off
         if active_reactor == "FlfSystemCodeReactor" and active_tab == "settings":
-            return off, off, off, off, off, off, on
+            return on, off, off, off, off, off, off, off, on
+        if active_reactor == "BallReactor":
+            return on, on, off, input_column_on, off, off, off, off, off
+        if active_reactor == "FlfSystemCodeReactor":
+            return on, off, on, off, input_column_on, off, off, off, off
     return f"No tab selected {active_tab}"
 
 
@@ -1468,6 +1576,16 @@ def update_ballreactor(
     rotation_angle,
 ):
 
+    if dash.callback_context.triggered == [{'prop_id': '.', 'value': None}]:
+
+        return html.Iframe(
+            src=f"assets/ballreactor_default.html",
+            width="100%",
+            height="100vh",
+            title="Paramak.export_html",
+            style={"border": 0, "scrolling": "0", "height": "100vh "},
+        )
+
     my_reactor = make_ballreactor_paramak_object(
         inner_bore_radial_thickness,
         inboard_tf_leg_radial_thickness,
@@ -1496,7 +1614,7 @@ def update_ballreactor(
         rotation_angle,
     )
 
-    os.system('rm assets/*.html')
+    # os.system('rm assets/*.html')
     letters = string.ascii_lowercase
     fn = ''.join(random.choice(letters) for i in range(20)) 
     my_reactor.export_html_3d(f"assets/{fn}.html")
@@ -1538,9 +1656,17 @@ def update_flfreactor(
     lower_vv_thickness,
     rotation_angle,
 ):
+    if dash.callback_context.triggered == [{'prop_id': '.', 'value': None}]:
 
-    print("updating flf")
-    my_reactor = FlfSystemCodeReactor(
+        return html.Iframe(
+            src=f"assets/flfsystemcodereactor_default.html",
+            width="100%",
+            height="100vh",
+            title="Paramak.export_html",
+            style={"border": 0, "scrolling": "0", "height": "100vh "},
+        )
+
+    my_reactor = make_flfsystemcodereactor_paramak_object(
         inner_blanket_radius=inner_blanket_radius,
         blanket_thickness=blanket_thickness,
         blanket_height=blanket_height,
@@ -1553,7 +1679,7 @@ def update_flfreactor(
         rotation_angle=rotation_angle,
     )
 
-    os.system('rm assets/*.html')
+    # os.system('rm assets/*.html')
     letters = string.ascii_lowercase
     fn= ''.join(random.choice(letters) for i in range(20)) 
     my_reactor.export_html_3d(f"assets/{fn}.html")
