@@ -18,6 +18,7 @@ EXPOSE 8080
 RUN mkdir assets
 COPY app.py .
 COPY utils.py .
+COPY assets/typography.css assets/
 
 # Run the web service on container startup. Here we use the gunicorn
 # webserver, with one worker process and 8 threads.

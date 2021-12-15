@@ -1,4 +1,4 @@
-import paramak
+from paramak import BallReactor
 
 
 def make_ballreactor_paramak_object(    inner_bore_radial_thickness,
@@ -71,7 +71,7 @@ def make_ballreactor_paramak_object(    inner_bore_radial_thickness,
     if outboard_tf_coil_poloidal_thickness == "":
         outboard_tf_coil_poloidal_thickness = None
 
-    my_reactor = paramak.BallReactor(
+    my_reactor = BallReactor(
         inner_bore_radial_thickness=float(inner_bore_radial_thickness),
         inboard_tf_leg_radial_thickness=float(inboard_tf_leg_radial_thickness),
         center_column_shield_radial_thickness=float(
