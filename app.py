@@ -10,6 +10,7 @@ from dash.dependencies import Input, Output, State
 import string
 import random
 
+
 app = dash.Dash(
     __name__,
     # prevent_initial_callbacks=True,
@@ -294,11 +295,14 @@ ball_reactor_geometry_input_args_table = html.Table(
         ),
         html.Tr(
             [
-                html.Td("rotation_angle"),
+                html.Td("rotation angle (degrees)"),
                 html.Td(
                     dcc.Input(
                         id="rotation_angle",
                         value=180,
+                        type="number",
+                        min=1,
+                        max=360,
                     )
                 ),
             ]
@@ -310,110 +314,150 @@ flf_system_code_reactor_geometry_input_args_table = html.Table(
     [
         html.Tr(
             [
-                html.Td("inner_blanket_radius"),
+                html.Td("Inner blanket radius (cm)" ,style={'white-space': 'nowrap'}),
                 html.Td(
                     dcc.Input(
                         id="inner_blanket_radius",
-                        value=100,
+                        value=100.,
+                        type="number",
+                        min=1,
+                        max=1000,
+                        size=10,
                     )
                 ),
             ]
         ),
         html.Tr(
             [
-                html.Td("blanket_thickness"),
+                html.Td("blanket thickness (cm)", style={'white-space': 'nowrap'}),
                 html.Td(
                     dcc.Input(
                         id="blanket_thickness",
                         value=70,
+                        type="number",
+                        min=1,
+                        max=1000,
+                        size=10,
                     )
                 ),
             ]
         ),
         html.Tr(
             [
-                html.Td("blanket_height"),
+                html.Td("blanket height  (cm)", style={'white-space': 'nowrap'}),
                 html.Td(
                     dcc.Input(
                         id="blanket_height",
                         value=500,
+                        type="number",
+                        min=1,
+                        max=1000,
+                        size=10,
                     )
                 ),
             ]
         ),
         html.Tr(
             [
-                html.Td("lower_blanket_thickness"),
+                html.Td("lower blanket thickness (cm)", style={'white-space': 'nowrap'}),
                 html.Td(
                     dcc.Input(
                         id="lower_blanket_thickness",
                         value=50,
+                        type="number",
+                        min=1,
+                        max=1000,
+                        size=10,
                     )
                 ),
             ]
         ),
         html.Tr(
             [
-                html.Td("upper_blanket_thickness"),
+                html.Td("upper blanket thickness (cm)", style={'white-space': 'nowrap'}),
                 html.Td(
                     dcc.Input(
                         id="upper_blanket_thickness",
                         value=40,
+                        type="number",
+                        min=1,
+                        max=1000,
+                        size=10,
                     )
                 ),
             ]
         ),
         html.Tr(
             [
-                html.Td("blanket_vv_gap"),
+                html.Td("blanket vessel gap (cm)", style={'white-space': 'nowrap'}),
                 html.Td(
                     dcc.Input(
                         id="blanket_vv_gap",
                         value=20,
+                        type="number",
+                        min=1,
+                        max=1000,
+                        size=10,
                     )
                 ),
             ]
         ),
         html.Tr(
             [
-                html.Td("upper_vv_thickness"),
+                html.Td("upper vessel thickness (cm)", style={'white-space': 'nowrap'}),
                 html.Td(
                     dcc.Input(
                         id="upper_vv_thickness",
                         value=10,
+                        type="number",
+                        min=1,
+                        max=1000,
+                        size=10,
                     )
                 ),
             ]
         ),
         html.Tr(
             [
-                html.Td("vv_thickness"),
+                html.Td("vessel thickness (cm)", style={'white-space': 'nowrap'}),
                 html.Td(
                     dcc.Input(
                         id="vv_thickness",
                         value=10,
+                        type="number",
+                        min=1,
+                        max=1000,
+                        size=10,
                     )
                 ),
             ]
         ),
         html.Tr(
             [
-                html.Td("lower_vv_thickness"),
+                html.Td("lower vessel thickness (cm)", style={'white-space': 'nowrap'}),
                 html.Td(
                     dcc.Input(
                         id="lower_vv_thickness",
                         value=10,
+                        type="number",
+                        min=1,
+                        max=1000,
+                        size=10,
                     )
                 ),
             ]
         ),
         html.Tr(
             [
-                html.Td("rotation_angle"),
+                html.Td("rotation angle (degrees)", style={'white-space': 'nowrap'}),
                 html.Td(
                     dcc.Input(
                         id="flf_rotation_angle",
                         value=180,
+                        type="number",
+                        min=1,
+                        max=360,
+                        size=10,
                     )
                 ),
             ]
@@ -609,21 +653,30 @@ app.layout = html.Div(
                             ],
                         ),
                         html.Br(),
-                        html.Button(
-                            "Download STL",
-                            title="Click to dowload the reactor CAD in STL file format",
-                            id="download_stl_button",
+                        html.Br(),
+                        html.Div(
+                            children=[
+                                html.Button(
+                                    "Download STL",
+                                    title="Click to dowload the reactor CAD in STL file format",
+                                    id="download_stl_button",
+                                    style={'margin': '5px'}
+                                ),
+                                html.Button(
+                                    "Download STP",
+                                    title="Click to dowload the reactor CAD in STP file format",
+                                    id="download_stp_button",
+                                    style={'margin': '5px'}
+                                ), 
+                                html.Button(
+                                    "Download HTML",
+                                    title="Click to dowload the reactor CAD in HTML file format",
+                                    id="download_html_button",
+                                    style={'margin': '5px'}
+                                ),
+                            ],
+                            style={"text-align": "center"}
                         ),
-                        html.Button(
-                            "Download STP",
-                            title="Click to dowload the reactor CAD in STP file format",
-                            id="download_stp_button",
-                        ), 
-                        html.Button(
-                            "Download HTML",
-                            title="Click to dowload the reactor CAD in HTML file format",
-                            id="download_html_button",
-                        ), 
                     ], style={"width": "25%", "vertical-align": "top"}),
                     html.Td([
                         html.Div(
@@ -793,15 +846,15 @@ def make_html_for_download(
 ):
     if reactor_selector == 'FlfSystemCodeReactor':
         my_reactor = paramak.FlfSystemCodeReactor(
-            inner_blanket_radius=float(inner_blanket_radius),
-            blanket_thickness=float(blanket_thickness),
-            blanket_height=float(blanket_height),
-            lower_blanket_thickness=float(lower_blanket_thickness),
-            upper_blanket_thickness=float(upper_blanket_thickness),
-            blanket_vv_gap=float(blanket_vv_gap),
-            upper_vv_thickness=float(upper_vv_thickness),
-            vv_thickness=float(vv_thickness),
-            lower_vv_thickness=float(lower_vv_thickness),
+            inner_blanket_radius=inner_blanket_radius,
+            blanket_thickness=blanket_thickness,
+            blanket_height=blanket_height,
+            lower_blanket_thickness=lower_blanket_thickness,
+            upper_blanket_thickness=upper_blanket_thickness,
+            blanket_vv_gap=blanket_vv_gap,
+            upper_vv_thickness=upper_vv_thickness,
+            vv_thickness=vv_thickness,
+            lower_vv_thickness=lower_vv_thickness,
             rotation_angle=float(flf_rotation_angle),
         )
     if reactor_selector == 'BallReactor':
@@ -874,7 +927,7 @@ def make_html_for_download(
             rear_blanket_to_tf_gap=rear_blanket_to_tf_gap,
             outboard_tf_coil_radial_thickness=outboard_tf_coil_radial_thickness,
             outboard_tf_coil_poloidal_thickness=outboard_tf_coil_poloidal_thickness,
-            rotation_angle=float(rotation_angle),
+            rotation_angle=rotation_angle,
             divertor_position=divertor_position,
             pf_coil_radial_thicknesses=pf_coil_radial_thicknesses,
             pf_coil_vertical_thicknesses=pf_coil_vertical_thicknesses,
@@ -976,15 +1029,15 @@ def make_stp_for_download(
 ):
     if reactor_selector == 'FlfSystemCodeReactor':
         my_reactor = paramak.FlfSystemCodeReactor(
-            inner_blanket_radius=float(inner_blanket_radius),
-            blanket_thickness=float(blanket_thickness),
-            blanket_height=float(blanket_height),
-            lower_blanket_thickness=float(lower_blanket_thickness),
-            upper_blanket_thickness=float(upper_blanket_thickness),
-            blanket_vv_gap=float(blanket_vv_gap),
-            upper_vv_thickness=float(upper_vv_thickness),
-            vv_thickness=float(vv_thickness),
-            lower_vv_thickness=float(lower_vv_thickness),
+            inner_blanket_radius=inner_blanket_radius,
+            blanket_thickness=blanket_thickness,
+            blanket_height=blanket_height,
+            lower_blanket_thickness=lower_blanket_thickness,
+            upper_blanket_thickness=upper_blanket_thickness,
+            blanket_vv_gap=blanket_vv_gap,
+            upper_vv_thickness=upper_vv_thickness,
+            vv_thickness=vv_thickness,
+            lower_vv_thickness=lower_vv_thickness,
             rotation_angle=float(flf_rotation_angle),
         )
     if reactor_selector == 'BallReactor':
@@ -1057,7 +1110,7 @@ def make_stp_for_download(
             rear_blanket_to_tf_gap=rear_blanket_to_tf_gap,
             outboard_tf_coil_radial_thickness=outboard_tf_coil_radial_thickness,
             outboard_tf_coil_poloidal_thickness=outboard_tf_coil_poloidal_thickness,
-            rotation_angle=float(rotation_angle),
+            rotation_angle=rotation_angle,
             divertor_position=divertor_position,
             pf_coil_radial_thicknesses=pf_coil_radial_thicknesses,
             pf_coil_vertical_thicknesses=pf_coil_vertical_thicknesses,
@@ -1159,15 +1212,15 @@ def make_stl_for_download(
 ):
     if reactor_selector == 'FlfSystemCodeReactor':
         my_reactor = paramak.FlfSystemCodeReactor(
-            inner_blanket_radius=float(inner_blanket_radius),
-            blanket_thickness=float(blanket_thickness),
-            blanket_height=float(blanket_height),
-            lower_blanket_thickness=float(lower_blanket_thickness),
-            upper_blanket_thickness=float(upper_blanket_thickness),
-            blanket_vv_gap=float(blanket_vv_gap),
-            upper_vv_thickness=float(upper_vv_thickness),
-            vv_thickness=float(vv_thickness),
-            lower_vv_thickness=float(lower_vv_thickness),
+            inner_blanket_radius=inner_blanket_radius,
+            blanket_thickness=blanket_thickness,
+            blanket_height=blanket_height,
+            lower_blanket_thickness=lower_blanket_thickness,
+            upper_blanket_thickness=upper_blanket_thickness,
+            blanket_vv_gap=blanket_vv_gap,
+            upper_vv_thickness=upper_vv_thickness,
+            vv_thickness=vv_thickness,
+            lower_vv_thickness=lower_vv_thickness,
             rotation_angle=float(flf_rotation_angle),
         )
     if reactor_selector == 'BallReactor':
@@ -1240,7 +1293,7 @@ def make_stl_for_download(
             rear_blanket_to_tf_gap=rear_blanket_to_tf_gap,
             outboard_tf_coil_radial_thickness=outboard_tf_coil_radial_thickness,
             outboard_tf_coil_poloidal_thickness=outboard_tf_coil_poloidal_thickness,
-            rotation_angle=float(rotation_angle),
+            rotation_angle=rotation_angle,
             divertor_position=divertor_position,
             pf_coil_radial_thicknesses=pf_coil_radial_thicknesses,
             pf_coil_vertical_thicknesses=pf_coil_vertical_thicknesses,
@@ -1518,7 +1571,7 @@ def update_ballreactor(
         rear_blanket_to_tf_gap=rear_blanket_to_tf_gap,
         outboard_tf_coil_radial_thickness=outboard_tf_coil_radial_thickness,
         outboard_tf_coil_poloidal_thickness=outboard_tf_coil_poloidal_thickness,
-        rotation_angle=float(rotation_angle),
+        rotation_angle=rotation_angle,
         divertor_position=divertor_position,
         pf_coil_radial_thicknesses=pf_coil_radial_thicknesses,
         pf_coil_vertical_thicknesses=pf_coil_vertical_thicknesses,
@@ -1572,16 +1625,16 @@ def update_flfreactor(
 
     print("updating flf")
     my_reactor = paramak.FlfSystemCodeReactor(
-        inner_blanket_radius=float(inner_blanket_radius),
-        blanket_thickness=float(blanket_thickness),
-        blanket_height=float(blanket_height),
-        lower_blanket_thickness=float(lower_blanket_thickness),
-        upper_blanket_thickness=float(upper_blanket_thickness),
-        blanket_vv_gap=float(blanket_vv_gap),
-        upper_vv_thickness=float(upper_vv_thickness),
-        vv_thickness=float(vv_thickness),
-        lower_vv_thickness=float(lower_vv_thickness),
-        rotation_angle=float(rotation_angle),
+        inner_blanket_radius=inner_blanket_radius,
+        blanket_thickness=blanket_thickness,
+        blanket_height=blanket_height,
+        lower_blanket_thickness=lower_blanket_thickness,
+        upper_blanket_thickness=upper_blanket_thickness,
+        blanket_vv_gap=blanket_vv_gap,
+        upper_vv_thickness=upper_vv_thickness,
+        vv_thickness=vv_thickness,
+        lower_vv_thickness=lower_vv_thickness,
+        rotation_angle=rotation_angle,
     )
 
     os.system('rm assets/*.html')
