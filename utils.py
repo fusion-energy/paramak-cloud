@@ -1,7 +1,35 @@
-from paramak import BallReactor
+from paramak import BallReactor, FlfSystemCodeReactor
+
+def make_flfsystemcodereactor_paramak_object(
+    inner_blanket_radius,
+    blanket_thickness,
+    blanket_height,
+    lower_blanket_thickness,
+    upper_blanket_thickness,
+    blanket_vv_gap,
+    upper_vv_thickness,
+    vv_thickness,
+    lower_vv_thickness,
+    rotation_angle,
+):
+    my_reactor = FlfSystemCodeReactor(
+        inner_blanket_radius=inner_blanket_radius,
+        blanket_thickness=blanket_thickness,
+        blanket_height=blanket_height,
+        lower_blanket_thickness=lower_blanket_thickness,
+        upper_blanket_thickness=upper_blanket_thickness,
+        blanket_vv_gap=blanket_vv_gap,
+        upper_vv_thickness=upper_vv_thickness,
+        vv_thickness=vv_thickness,
+        lower_vv_thickness=lower_vv_thickness,
+        rotation_angle=rotation_angle,
+    )
+
+    return my_reactor
 
 
-def make_ballreactor_paramak_object(    inner_bore_radial_thickness,
+def make_ballreactor_paramak_object(
+    inner_bore_radial_thickness,
     inboard_tf_leg_radial_thickness,
     center_column_shield_radial_thickness,
     divertor_radial_thickness,
@@ -70,27 +98,26 @@ def make_ballreactor_paramak_object(    inner_bore_radial_thickness,
 
     if outboard_tf_coil_poloidal_thickness == "":
         outboard_tf_coil_poloidal_thickness = None
+    
+    if number_of_tf_coils == 0:
+        number_of_tf_coils = None
 
     my_reactor = BallReactor(
-        inner_bore_radial_thickness=float(inner_bore_radial_thickness),
-        inboard_tf_leg_radial_thickness=float(inboard_tf_leg_radial_thickness),
-        center_column_shield_radial_thickness=float(
-            center_column_shield_radial_thickness
-        ),
-        divertor_radial_thickness=float(divertor_radial_thickness),
-        inner_plasma_gap_radial_thickness=float(inner_plasma_gap_radial_thickness),
-        plasma_radial_thickness=float(plasma_radial_thickness),
-        outer_plasma_gap_radial_thickness=float(outer_plasma_gap_radial_thickness),
-        blanket_radial_thickness=float(blanket_radial_thickness),
-        blanket_rear_wall_radial_thickness=float(blanket_rear_wall_radial_thickness),
-        plasma_gap_vertical_thickness=float(plasma_gap_vertical_thickness),
-        elongation=float(elongation),
-        triangularity=float(triangularity),
-        firstwall_radial_thickness=float(firstwall_radial_thickness),
-        divertor_to_tf_gap_vertical_thickness=float(
-            divertor_to_tf_gap_vertical_thickness
-        ),
-        number_of_tf_coils=float(number_of_tf_coils),
+        inner_bore_radial_thickness=inner_bore_radial_thickness,
+        inboard_tf_leg_radial_thickness=inboard_tf_leg_radial_thickness,
+        center_column_shield_radial_thickness=center_column_shield_radial_thickness,
+        divertor_radial_thickness=divertor_radial_thickness,
+        inner_plasma_gap_radial_thickness=inner_plasma_gap_radial_thickness,
+        plasma_radial_thickness=plasma_radial_thickness,
+        outer_plasma_gap_radial_thickness=outer_plasma_gap_radial_thickness,
+        blanket_radial_thickness=blanket_radial_thickness,
+        blanket_rear_wall_radial_thickness=blanket_rear_wall_radial_thickness,
+        plasma_gap_vertical_thickness=plasma_gap_vertical_thickness,
+        elongation=elongation,
+        triangularity=triangularity,
+        firstwall_radial_thickness=firstwall_radial_thickness,
+        divertor_to_tf_gap_vertical_thickness=divertor_to_tf_gap_vertical_thickness,
+        number_of_tf_coils=number_of_tf_coils,
         rear_blanket_to_tf_gap=rear_blanket_to_tf_gap,
         outboard_tf_coil_radial_thickness=outboard_tf_coil_radial_thickness,
         outboard_tf_coil_poloidal_thickness=outboard_tf_coil_poloidal_thickness,
