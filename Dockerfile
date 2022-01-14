@@ -18,6 +18,8 @@ EXPOSE 8080
 RUN mkdir assets
 COPY app.py .
 COPY utils.py .
+COPY html_layouts_ball_reactor.py .
+COPY html_layouts_flf_system_code_reactor.py .
 COPY assets/typography.css assets/
 COPY assets/ballreactor_default.html assets/
 COPY assets/flfsystemcodereactor_default.html assets/
