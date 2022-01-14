@@ -779,6 +779,7 @@ flf_system_code_reactor_neutronics_parameters = html.Table(
             "Simulate reactor",
             title="Click to start a neutronics simulation",
             id="simulate_flfsystemcodereactor_button",
+            n_clicks=0
         ),
         html.Br(),
         html.Br(),
@@ -1420,8 +1421,7 @@ def render_tab_content(active_reactor, active_tab):
 
 
 @app.callback(
-    Output("simulate_results", "children"),
-    Input("simulate_button", "n_clicks"),
+    Output("simulate_flfsystemcodereactor_results", "children"),
     State("results_required", "value"),
     State("simulation_batches", "value"),
     State("simulation_particles", "value"),
@@ -1438,10 +1438,10 @@ def render_tab_content(active_reactor, active_tab):
     State("blanket_material", "value"),
     State("lithium_enrichment", "value"),
     State("vessel_material", "value"),
+    Input("simulate_flfsystemcodereactor_button", "n_clicks"),
     prevent_initial_call=True,
 )
-def clicked_simulate(
-    n_clicks,
+def clicked_flf_simulate(
     results_required,
     simulation_batches,
     simulation_particles,
@@ -1458,12 +1458,13 @@ def clicked_simulate(
     blanket_material,
     lithium_enrichment,
     vessel_material,
+    n_clicks,
 ):
-    trigger_id = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
-    if trigger_id == "simulate_button":
-        if n_clicks is None or n_clicks == 0:
-            raise dash.exceptions.PreventUpdate
-
+    # trigger_id = dash.callback_context.triggered[0]["prop_id"].split(".")[0]
+    # if trigger_id == "simulate_flfsystemcodereactor_button":
+    #     if n_clicks is None or n_clicks == 0:
+    #         raise dash.exceptions.PreventUpdate
+    print('triggered')
     payload = {
         "results_required": ','.join(results_required),
         "simulation_batches": simulation_batches,
@@ -1681,7 +1682,7 @@ def update_flfreactor(
 
     # os.system('rm assets/*.html')
     letters = string.ascii_lowercase
-    fn= ''.join(random.choice(letters) for i in range(20)) 
+    fn = ''.join(random.choice(letters) for i in range(20)) 
     my_reactor.export_html_3d(f"assets/{fn}.html")
 
     return html.Iframe(
