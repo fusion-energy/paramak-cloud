@@ -379,6 +379,12 @@ ball_reactor_geometry_input_args_table = html.Table(
                     id="download_ballreactor_html_button",
                     style={'margin': '5px'}
                 ),
+                html.Button(
+                    "Download DAGMC h5m",
+                    title="Click to dowload the reactor CAD in h5m file format",
+                    id="download_ballreactor_h5m_button",
+                    style={'margin': '5px'}
+                ),
             ],
             style={"text-align": "center"}
         ),

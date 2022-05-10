@@ -171,11 +171,154 @@ app.layout = html.Div(
         dcc.Download(id="download-stp"),
         dcc.Download(id="download-stl"),
         dcc.Download(id="download-html"),
+        dcc.Download(id="download-h5m"),
         dcc.Download(id="download-ballreactor-stp"),
         dcc.Download(id="download-ballreactor-stl"),
         dcc.Download(id="download-ballreactor-html"),
+        dcc.Download(id="download-ballreactor-h5m"),
     ]
 )
+
+
+@app.callback(
+    Output("download-h5m", "data"),
+    State("inner_blanket_radius", "value"),
+    State("blanket_thickness", "value"),
+    State("blanket_height", "value"),
+    State("lower_blanket_thickness", "value"),
+    State("upper_blanket_thickness", "value"),
+    State("blanket_vv_gap", "value"),
+    State("upper_vv_thickness", "value"),
+    State("vv_thickness", "value"),
+    State("lower_vv_thickness", "value"),
+    State("flf_rotation_angle", "value"),
+    Input("download_flf_h5m_button", "n_clicks"),
+    prevent_initial_call=True,
+)
+def make_h5m_for_download(
+    inner_blanket_radius,
+    blanket_thickness,
+    blanket_height,
+    lower_blanket_thickness,
+    upper_blanket_thickness,
+    blanket_vv_gap,
+    upper_vv_thickness,
+    vv_thickness,
+    lower_vv_thickness,
+    flf_rotation_angle,
+    n_clicks
+):
+
+    my_reactor = make_flfsystemcodereactor_paramak_object(
+        inner_blanket_radius=inner_blanket_radius,
+        blanket_thickness=blanket_thickness,
+        blanket_height=blanket_height,
+        lower_blanket_thickness=lower_blanket_thickness,
+        upper_blanket_thickness=upper_blanket_thickness,
+        blanket_vv_gap=blanket_vv_gap,
+        upper_vv_thickness=upper_vv_thickness,
+        vv_thickness=vv_thickness,
+        lower_vv_thickness=lower_vv_thickness,
+        rotation_angle=float(flf_rotation_angle),
+    )
+
+    my_reactor.export_dagmc_h5m(f"assets/flfsystemcodereactor.h5m")
+    return dcc.send_file(
+        "assets/flfsystemcodereactor.h5m"
+    )
+
+
+@app.callback(
+    Output("download-ballreactor-h5m", "data"),
+    State("inner_bore_radial_thickness", "value"),
+    State("inboard_tf_leg_radial_thickness", "value"),
+    State("center_column_shield_radial_thickness", "value"),
+    State("divertor_radial_thickness", "value"),
+    State("inner_plasma_gap_radial_thickness", "value"),
+    State("plasma_radial_thickness", "value"),
+    State("outer_plasma_gap_radial_thickness", "value"),
+    State("firstwall_radial_thickness", "value"),
+    State("blanket_radial_thickness", "value"),
+    State("blanket_rear_wall_radial_thickness", "value"),
+    State("plasma_gap_vertical_thickness", "value"),
+    State("elongation", "value"),
+    State("triangularity", "value"),
+    State("divertor_to_tf_gap_vertical_thickness", "value"),
+    State("number_of_tf_coils", "value"),
+    State("rear_blanket_to_tf_gap", "value"),
+    State("pf_coil_radial_thicknesses", "value"),
+    State("pf_coil_vertical_thicknesses", "value"),
+    State("pf_coil_radial_position", "value"),
+    State("pf_coil_vertical_position", "value"),
+    State("pf_coil_case_thicknesses", "value"),
+    State("outboard_tf_coil_radial_thickness", "value"),
+    State("outboard_tf_coil_poloidal_thickness", "value"),
+    State("divertor_position", "value"),
+    State("rotation_angle", "value"),
+    Input("download_ballreactor_h5m_button", "n_clicks"),
+    prevent_initial_call=True,
+)
+def make_ballreactor_h5m_for_download(
+    inner_bore_radial_thickness,
+    inboard_tf_leg_radial_thickness,
+    center_column_shield_radial_thickness,
+    divertor_radial_thickness,
+    inner_plasma_gap_radial_thickness,
+    plasma_radial_thickness,
+    outer_plasma_gap_radial_thickness,
+    firstwall_radial_thickness,
+    blanket_radial_thickness,
+    blanket_rear_wall_radial_thickness,
+    plasma_gap_vertical_thickness,
+    elongation,
+    triangularity,
+    divertor_to_tf_gap_vertical_thickness,
+    number_of_tf_coils,
+    rear_blanket_to_tf_gap,
+    pf_coil_radial_thicknesses,
+    pf_coil_vertical_thicknesses,
+    pf_coil_radial_position,
+    pf_coil_vertical_position,
+    pf_coil_case_thicknesses,
+    outboard_tf_coil_radial_thickness,
+    outboard_tf_coil_poloidal_thickness,
+    divertor_position,
+    rotation_angle,
+    n_clicks
+):
+
+    my_reactor = make_ballreactor_paramak_object(
+        inner_bore_radial_thickness,
+        inboard_tf_leg_radial_thickness,
+        center_column_shield_radial_thickness,
+        divertor_radial_thickness,
+        inner_plasma_gap_radial_thickness,
+        plasma_radial_thickness,
+        outer_plasma_gap_radial_thickness,
+        firstwall_radial_thickness,
+        blanket_radial_thickness,
+        blanket_rear_wall_radial_thickness,
+        plasma_gap_vertical_thickness,
+        elongation,
+        triangularity,
+        divertor_to_tf_gap_vertical_thickness,
+        number_of_tf_coils,
+        rear_blanket_to_tf_gap,
+        pf_coil_radial_thicknesses,
+        pf_coil_vertical_thicknesses,
+        pf_coil_radial_position,
+        pf_coil_vertical_position,
+        pf_coil_case_thicknesses,
+        outboard_tf_coil_radial_thickness,
+        outboard_tf_coil_poloidal_thickness,
+        divertor_position,
+        rotation_angle,
+    )
+
+    my_reactor.export_dagmc_h5m(f"assets/ballreactor.h5m")
+    return dcc.send_file(
+        "assets/ballreactor.h5m"
+    )
 
 
 @app.callback(
