@@ -32,11 +32,11 @@ app.layout = html.Div(
         ),
         html.H1("Paramak GUI", style={"text-align": "center"}),
         html.H2(
-            "Create 3D fusion reactor models and perform neutronics simulations on demand.",
+            "Create 3D fusion reactors and perform neutronics on demand.",
             style={"text-align": "center"},
         ),
         html.H2(
-            "This webpage is under development and not fully functional yet.",
+            "This is under development and not fully functional yet.",
             style={"color": "red", "text-align": "center"},
         ),
         html.Br(),
